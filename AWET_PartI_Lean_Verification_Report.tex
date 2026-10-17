@@ -1,0 +1,1574 @@
+\documentclass[11pt]{article}
+\usepackage[letterpaper,top=0.95in,bottom=0.95in,left=1in,right=1in,headsep=0.3in]{geometry}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{mathpazo}
+\usepackage[no-math]{fontspec}
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}[Scale=MatchLowercase]
+\setmonofont{DejaVu Sans Mono}[Scale=0.78]
+\usepackage[table]{xcolor}
+\usepackage{fvextra}
+\usepackage[most]{tcolorbox}
+\usepackage{booktabs,tabularx,longtable,array,multirow}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds}
+\usepackage{microtype}
+\usepackage{newunicodechar}
+\usepackage[hidelinks,bookmarksnumbered]{hyperref}
+
+% ---------------------------------------------------------------- colours
+\definecolor{accent}{HTML}{1F4E8C}
+\definecolor{accentsoft}{HTML}{E9EFF8}
+\definecolor{codebg}{HTML}{F6F8FA}
+\definecolor{paperbg}{HTML}{FBF7EE}
+\definecolor{paperrule}{HTML}{C49A3C}
+\definecolor{notebg}{HTML}{EEF6F0}
+\definecolor{noterule}{HTML}{2E7D4F}
+\definecolor{muted}{HTML}{5B6573}
+\definecolor{okgreen}{HTML}{2E7D4F}
+\definecolor{rowgray}{HTML}{F4F5F7}
+
+\hypersetup{colorlinks=true,linkcolor=accent,urlcolor=accent,citecolor=accent,
+  pdftitle={Strong NP-hardness of AWET: a machine-checked verification of Part I},
+  pdfsubject={Lean 4 verification of Hall, Kellerer, Song, arXiv:2609.16046v1, Part I},
+  pdfkeywords={Lean 4, Mathlib, formal verification, scheduling, earliness-tardiness, strong NP-hardness}}
+
+% ---------------------------------------------------------------- code
+
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\@namedef{PY@tok@c}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.42,0.45,0.49}{##1}}}
+\@namedef{PY@tok@cs}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.42,0.45,0.49}{##1}}}
+\@namedef{PY@tok@k}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.12,0.31,0.55}{##1}}}
+\@namedef{PY@tok@kn}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.12,0.31,0.55}{##1}}}
+\@namedef{PY@tok@kd}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.12,0.31,0.55}{##1}}}
+\@namedef{PY@tok@kt}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.48,0.24,0.62}{##1}}}
+\@namedef{PY@tok@nb}{\def\PY@tc##1{\textcolor[rgb]{0.48,0.24,0.62}{##1}}}
+\@namedef{PY@tok@bp}{\def\PY@tc##1{\textcolor[rgb]{0.14,0.16,0.18}{##1}}}
+\@namedef{PY@tok@nf}{\def\PY@tc##1{\textcolor[rgb]{0.14,0.16,0.18}{##1}}}
+\@namedef{PY@tok@s}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@sd}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.42,0.45,0.49}{##1}}}
+\@namedef{PY@tok@m}{\def\PY@tc##1{\textcolor[rgb]{0.70,0.35,0.00}{##1}}}
+\@namedef{PY@tok@o}{\def\PY@tc##1{\textcolor[rgb]{0.14,0.16,0.18}{##1}}}
+\@namedef{PY@tok@ow}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.12,0.31,0.55}{##1}}}
+\@namedef{PY@tok@p}{\def\PY@tc##1{\textcolor[rgb]{0.14,0.16,0.18}{##1}}}
+\@namedef{PY@tok@kc}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.12,0.31,0.55}{##1}}}
+\@namedef{PY@tok@kp}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.12,0.31,0.55}{##1}}}
+\@namedef{PY@tok@kr}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.12,0.31,0.55}{##1}}}
+\@namedef{PY@tok@fm}{\def\PY@tc##1{\textcolor[rgb]{0.14,0.16,0.18}{##1}}}
+\@namedef{PY@tok@sa}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@sb}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@sc}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@dl}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@s2}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@se}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@sh}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@si}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@sx}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@sr}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@s1}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@ss}{\def\PY@tc##1{\textcolor[rgb]{0.13,0.53,0.23}{##1}}}
+\@namedef{PY@tok@mb}{\def\PY@tc##1{\textcolor[rgb]{0.70,0.35,0.00}{##1}}}
+\@namedef{PY@tok@mf}{\def\PY@tc##1{\textcolor[rgb]{0.70,0.35,0.00}{##1}}}
+\@namedef{PY@tok@mh}{\def\PY@tc##1{\textcolor[rgb]{0.70,0.35,0.00}{##1}}}
+\@namedef{PY@tok@mi}{\def\PY@tc##1{\textcolor[rgb]{0.70,0.35,0.00}{##1}}}
+\@namedef{PY@tok@il}{\def\PY@tc##1{\textcolor[rgb]{0.70,0.35,0.00}{##1}}}
+\@namedef{PY@tok@mo}{\def\PY@tc##1{\textcolor[rgb]{0.70,0.35,0.00}{##1}}}
+\@namedef{PY@tok@pm}{\def\PY@tc##1{\textcolor[rgb]{0.14,0.16,0.18}{##1}}}
+\@namedef{PY@tok@ch}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.42,0.45,0.49}{##1}}}
+\@namedef{PY@tok@cm}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.42,0.45,0.49}{##1}}}
+\@namedef{PY@tok@cp}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.42,0.45,0.49}{##1}}}
+\@namedef{PY@tok@cpf}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.42,0.45,0.49}{##1}}}
+\@namedef{PY@tok@c1}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.42,0.45,0.49}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+\newcommand{\leanfont}{\small}
+\ExplSyntaxOn
+\tl_new:N \l__lean_tl
+\NewDocumentCommand{\lean}{m}{
+  \tl_set:Nx \l__lean_tl { \tl_to_str:n {#1} }
+  \regex_replace_all:nnN { ([_\.]) } { \1 \c{allowbreak} } \l__lean_tl
+  \texttt{\l__lean_tl}
+}
+\ExplSyntaxOff
+\newunicodechar{⟺}{\ensuremath{\Longleftrightarrow}}
+\newunicodechar{𝒫}{\ensuremath{\mathcal{P}}}
+\fvset{fontsize=\small}
+
+\newtcolorbox{leanbox}[1][]{enhanced,breakable,colback=codebg,frame hidden,
+  borderline west={2pt}{0pt}{accent!75},arc=0pt,outer arc=0pt,
+  left=7pt,right=4pt,top=3pt,bottom=3pt,before skip=7pt,after skip=9pt,#1}
+
+
+\newtcolorbox{paperbox}[1][]{enhanced,breakable,colback=paperbg,frame hidden,
+  borderline west={2pt}{0pt}{paperrule},arc=0pt,outer arc=0pt,
+  left=8pt,right=6pt,top=5pt,bottom=5pt,before skip=7pt,after skip=7pt,#1}
+\newtcolorbox{notebox}[1][]{enhanced,breakable,colback=notebg,frame hidden,
+  borderline west={2pt}{0pt}{noterule},arc=0pt,outer arc=0pt,
+  left=8pt,right=6pt,top=5pt,bottom=5pt,before skip=7pt,after skip=7pt,#1}
+\newcommand{\paperlabel}[1]{{\sffamily\bfseries\small\color{paperrule!80!black}#1}\quad}
+\newcommand{\notelabel}[1]{{\sffamily\bfseries\small\color{noterule}#1}\quad}
+
+% ---------------------------------------------------------------- headings
+\titleformat{\section}{\Large\bfseries\color{accent}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{0.6em}{}
+\titlespacing*{\section}{0pt}{18pt}{8pt}
+\titlespacing*{\subsection}{0pt}{14pt}{6pt}
+\titlespacing*{\subsubsection}{0pt}{10pt}{4pt}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\color{muted}\textsc{Lean verification of AWET, Part I}}
+\fancyhead[R]{\footnotesize\color{muted}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{muted!40}\leaders\hrule height \headrulewidth\hfill}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\footnotesize\color{muted}\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\setlist{itemsep=2pt,topsep=4pt,parsep=0pt}
+\setlength{\parskip}{3.5pt}
+\setlength{\parindent}{0pt}
+\linespread{1.04}
+
+% ---------------------------------------------------------------- math
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Pen}{\mathcal{P}}
+\newcommand{\can}{\mathrm{can}}
+\newcommand{\ok}{\leavevmode{\color{okgreen}\ensuremath{\checkmark}}}
+\DeclareMathOperator{\round}{round}
+
+\begin{document}
+\thispagestyle{plain}
+
+% ================================================================= title
+{\sffamily\bfseries\small\color{accent} VERIFICATION REPORT \;\textperiodcentered\; LEAN 4 / MATHLIB}
+
+\vspace{6pt}
+{\raggedright\hyphenpenalty=10000\exhyphenpenalty=10000
+\fontsize{21}{25.5}\selectfont\bfseries Strong NP-hardness of asymmetric weighted\\ earliness--tardiness scheduling:\\ a machine-checked verification of Part~I\par}
+
+\vspace{10pt}
+{\raggedright\large N.\,G.~Hall, H.~Kellerer, M.~Song, \emph{Asymmetric Weighted Earliness--Tardiness: Scheduling with a Nonrestrictive Common Due Date}, arXiv:2609.16046v1, Part~I (Sections~4--9).\par}
+
+\vspace{8pt}
+{\raggedright\small\color{muted} Formal development: \lean{AWET_PartI.lean} (one file, 5{,}002 lines, 336 theorems)\\
+Lean~4 v4.35.0 \;\textperiodcentered\; Mathlib v4.35.0 \;\textperiodcentered\; October 2026\par}
+
+\vspace{8pt}
+\begin{tcolorbox}[enhanced,colback=accentsoft,frame hidden,borderline west={3pt}{0pt}{accent},arc=0pt,outer arc=0pt,left=10pt,right=10pt,top=8pt,bottom=8pt]
+{\sffamily\bfseries\color{accent} Verdict}\quad
+The proof in Part~I is \textbf{correct}. Every step of the reduction from
+Restricted Exact Cover by 3-Sets (RXC3) to AWET with the boundary due date $d=\sum_j p_j$
+(Sections~6--9) has been formalized in Lean~4 and checked by Lean's kernel. We found no
+mathematical error; the minor remarks in Section~\ref{sec:remarks} do not affect the result.
+
+\smallskip
+\begin{itemize}[leftmargin=14pt,itemsep=3pt,before=\raggedright]
+\item \textbf{Formal result} (\lean{AWET.AWET_strong_reduction}). For \emph{every} RXC3 instance $X$:
+  $X$ has an exact cover $\iff$ the AWET instance built by the paper's Section~8 has a schedule
+  (arbitrary real start times) of cost at most the paper's bound $B=\lfloor A+\Gamma\rfloor$.
+  The instance has $8n+1$ jobs, and every number in it is at most $(n+1)^{650}$.
+\item \textbf{Check status.} No \lean{sorry}, no added axioms (only Lean's standard
+  \lean{propext}, \lean{Classical.choice}, \lean{Quot.sound}), no warnings; the compiled module
+  is re-checked declaration by declaration by \lean{leanchecker}.
+\item \textbf{Not machine-checked} (taken as given, as in the paper): NP-completeness of RXC3
+  (Gonzalez, 1985) and the routine fact that the explicit formulas of the construction can be
+  evaluated in polynomial time.
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{2pt}
+{\footnotesize
+\renewcommand{\arraystretch}{1.22}
+\begin{tabularx}{\textwidth}{@{}>{\leavevmode\color{muted}\sffamily\bfseries}p{0.19\textwidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Paper & Hall, Kellerer, Song, arXiv:2609.16046v1, Part~I ``Hardness'' (paper pp.~18--63) \\
+Claim checked & Theorem~I.2: the decision version of AWET with $d=\sum_jp_j$ is strongly NP-complete, in particular unary NP-hard \\
+Coverage & Sections 6--9 in full: canonical reformulation (Lemma~I.3, Proposition~I.4, membership in NP), Reduction~I (Lemmas~I.7--I.9), Reduction~II (Lemmas~I.11--I.18), bounds (Lemma~I.19); the worked examples of Appendix~B \\
+Formal artifact & \lean{AWET_PartI.lean}: one self-contained file, 5{,}002 lines, 336 theorems, 117 definitions; Lean~4 v4.35.0 with Mathlib v4.35.0; compiles in about one minute \\
+Issues in the paper & none that affect correctness; seven minor remarks (Section~\ref{sec:remarks}) \\
+\bottomrule
+\end{tabularx}}
+
+\newpage
+{\small
+\setcounter{tocdepth}{2}
+\renewcommand{\contentsname}{\large\bfseries\color{accent} Contents}
+\tableofcontents}
+\vspace{6pt}
+% ================================================================= 1
+\section{What exactly was verified}\label{sec:what}
+
+\subsection{The claim and its logical shape}
+
+Theorem~I.2 states that the decision version of AWET (one machine; positive integer processing
+times $p_j$, earliness weights $w^E_j$ and tardiness weights $w^L_j$; common due date
+$d=\sum_j p_j$; question: is there a schedule of cost at most $B$?) is strongly NP-complete.
+In the standard sense of Garey and Johnson, the paper proves strong NP-hardness with a
+transformation $X\mapsto(\mathrm{inst}(X),B(X))$ from RXC3, a problem without numbers, such that
+\begin{enumerate}[label=(\alph*),leftmargin=22pt]
+\item \emph{correctness}: $X$ is a yes-instance $\iff$ $(\mathrm{inst}(X),B(X))$ is a yes-instance;
+\item \emph{polynomially bounded numbers}: every number of $(\mathrm{inst}(X),B(X))$ is at most a fixed
+  polynomial in the size of $X$;
+\item \emph{polynomial time}: the transformation can be computed in polynomial time.
+\end{enumerate}
+Membership in NP rests on the canonical set formulation (Lemma~I.3, Proposition~I.4): a
+yes-instance has an early set $E$ with $\Phi(E)\le B$, and $\Phi(E)$ is computable in
+polynomial time.
+
+The Lean development proves (a) for every RXC3 instance, proves (b) with the paper's own
+polynomial $(n+1)^{650}$, and proves the canonical formulation used for NP membership.
+Item (c) is not formalized: every constructed quantity is an explicit closed formula
+(sums over $O(n^2)$ job pairs, roundings, a floor and a ceiling of rational
+numbers), and its polynomial-time computability is routine. The NP-completeness of RXC3 is
+taken from the literature, exactly as in the paper.
+
+\subsection{The main theorem}
+
+The final theorem of the file is the formal core of Theorem~I.2.
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Theorem I.2 (formal core).** The paper\PYZsq{}s transformation `X ↦ (X.inst, X.Bnd)` from}
+\PY{l+s+sd}{Restricted Exact Cover by 3}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{Sets to AWET with the boundary due date `d = Σ p\PYZus{}j` is correct, and}
+\PY{l+s+sd}{for every nonempty source instance it uses `8n+1` jobs whose data, due date and threshold are}
+\PY{l+s+sd}{bounded by the fixed polynomial `(n+1)\PYZca{}650`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{AWET\PYZus{}strong\PYZus{}reduction}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{RXC3}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{HasExactCover}\PY{+w}{ }\PY{n+nb+bp}{↔}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Yes}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{    }\PY{o}{(}\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}
+\PY{+w}{      }\PY{n}{Fintype}\PY{n+nb+bp}{.}\PY{n}{card}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{8}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{      }\PY{o}{(}\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{      }\PY{o}{(}\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{wE}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{wE}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{      }\PY{o}{(}\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{      }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{d}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{      }\PY{n+nb+bp}{|}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{⟨}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{reduction\PYZus{}iff}\PY{o}{,}\PY{+w}{ }\PY{k}{fun}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{RXC3}\PY{n+nb+bp}{.}\PY{n}{size\PYZus{}bound}\PY{+w}{ }\PY{n}{X}\PY{+w}{ }\PY{n}{hn}\PY{n+nb+bp}{⟩}
+\end{Verbatim}
+\end{leanbox}
+Here \lean{X : RXC3} is an arbitrary RXC3 instance with $n$ elements and $n$ sets,
+\lean{X.inst} is the AWET instance of Section~8.1 with job type \lean{Job X.n}
+($8n$ state jobs and one anchor), \lean{X.Bnd} is the decision bound
+$B=\lfloor A+\Gamma\rfloor$ of (8.34), and \lean{X.inst.Yes B} means that some feasible schedule
+has cost at most $B$. The first conjunct is correctness (a); the second is the size bound
+(b), stated for $n\ge 1$ (for $n=0$ the instance has a single job and $B=0$).
+
+\subsection{The formal problem statement}\label{sec:problem}
+
+A theorem is only as good as its definitions, so the definitions that appear in the main
+statement are kept short and close to Definition~I.1.
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ An AWET instance: positive integer processing times and weights. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{structure}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{o}{(}\PY{n}{J}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{k+kt}{Type}\PY{o}{)}\PY{+w}{ }\PY{o}{[}\PY{n}{Fintype}\PY{+w}{ }\PY{n}{J}\PY{o}{]}\PY{+w}{ }\PY{k+kn}{where}
+\PY{+w}{  }\PY{n}{p}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{J}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℤ}
+\PY{+w}{  }\PY{n}{wE}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{J}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℤ}
+\PY{+w}{  }\PY{n}{wL}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{J}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℤ}
+\PY{+w}{  }\PY{n}{hp}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{p}\PY{+w}{ }\PY{n}{j}
+\PY{+w}{  }\PY{n}{hwE}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{wE}\PY{+w}{ }\PY{n}{j}
+\PY{+w}{  }\PY{n}{hwL}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{wL}\PY{+w}{ }\PY{n}{j}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ The boundary nonrestrictive common due date `d = Σ p\PYZus{}j`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{d}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ A feasible nonpreemptive single}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{machine schedule, given by (real) completion times:}
+\PY{l+s+sd}{nonnegative start times and no two jobs overlapping. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{structure}\PY{+w}{ }\PY{n}{Sched}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{k+kn}{where}
+\PY{+w}{  }\PY{n}{C}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{J}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℝ}
+\PY{+w}{  }\PY{n}{start\PYZus{}nonneg}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{C}\PY{+w}{ }\PY{n}{j}
+\PY{+w}{  }\PY{n}{no\PYZus{}overlap}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{C}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{C}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∨}\PY{+w}{ }\PY{n}{C}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{C}\PY{+w}{ }\PY{n}{i}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ Total weighted earliness}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{tardiness cost. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{cost}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Sched}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wE}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{max}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{d}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{σ}\PY{n+nb+bp}{.}\PY{n}{C}\PY{+w}{ }\PY{n}{j}\PY{o}{)}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{max}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{n+nb+bp}{.}\PY{n}{C}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{d}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ Decision version: is there a feasible schedule of cost at most `B`? }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Yes}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{B}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{k+kt}{Prop}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Sched}\PY{o}{,}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{cost}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{n}{B}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}
+\end{Verbatim}
+\end{leanbox}
+\begin{itemize}[leftmargin=14pt]
+\item A schedule is given by real completion times $C_j$; the start time $C_j-p_j$ must be
+  nonnegative, and the processing intervals of any two jobs must not overlap (one machine,
+  no preemption). Idle time is allowed anywhere and no job order is fixed in advance, so
+  \lean{Yes} quantifies over all feasible schedules of Definition~I.1, not only over
+  canonical or integral ones.
+\item \lean{cost} is exactly $F=\sum_j w^E_j(d-C_j)^+ + w^L_j(C_j-d)^+$ with $d=\sum_j p_j$.
+\item The job set is any finite type \lean{J}; the linear order on it is only used to enumerate
+  unordered pairs.
+\end{itemize}
+
+The source problem is Definition~I.5:
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ An RXC3 instance (Definition I.5): elements `0,…,n}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{1`, sets `S\PYZus{}0,…,S\PYZus{}\PYZob{}n}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{1\PYZcb{}`; set `v` is}
+\PY{l+s+sd}{`\PYZob{}S v 0 \PYZlt{} S v 1 \PYZlt{} S v 2\PYZcb{}` and every element lies in exactly three sets. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{structure}\PY{+w}{ }\PY{n}{RXC3}\PY{+w}{ }\PY{k+kn}{where}
+\PY{+w}{  }\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}
+\PY{+w}{  }\PY{n}{S}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{3}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{n}
+\PY{+w}{  }\PY{n}{mono}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{n}{S}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{S}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{S}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{S}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{l+m+mi}{2}
+\PY{+w}{  }\PY{n}{reg}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{univ}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{q}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{×}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{3}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{S}\PY{+w}{ }\PY{n}{q}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{+w}{ }\PY{n}{q}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{k}\PY{o}{)}\PY{o}{)}\PY{n+nb+bp}{.}\PY{n}{card}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{3}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ `x` selects an exact cover: every element lies in exactly one selected set. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{IsExactCover}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{k+kt}{Prop}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{univ}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{true}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{h}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{S}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{k}\PY{o}{)}\PY{o}{)}\PY{n+nb+bp}{.}\PY{n}{card}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{HasExactCover}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{k+kt}{Prop}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{x}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{IsExactCover}\PY{+w}{ }\PY{n}{x}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ prefix datum `d\PYZus{}\PYZob{}v,k\PYZcb{} = |S\PYZus{}v ∩ \PYZob{}e\PYZus{}1,…,e\PYZus{}k\PYZcb{}|` (elements are `0,…,n}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{1`, so the first `k`}
+\PY{l+s+sd}{elements are those with index `\PYZlt{} k`). }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{dpre}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{o}{(}\PY{n}{univ}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{3}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{S}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{k}\PY{o}{)}\PY{o}{)}\PY{n+nb+bp}{.}\PY{n}{card}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ prefix count `C\PYZus{}k(x) = Σ\PYZus{}v d\PYZus{}\PYZob{}v,k\PYZcb{} x\PYZus{}v` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Cpre}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{dpre}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the RPE equations `C\PYZus{}k(x) = k` (Definition I.6) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{RPE}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{k+kt}{Prop}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{k}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cpre}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{k}
+\end{Verbatim}
+\end{leanbox}
+Elements and sets are numbered from $0$; set $v$ is $\{S_{v,0}<S_{v,1}<S_{v,2}\}$, and
+\lean{reg} says that every element occurs in exactly three of the $3n$ incidences. The
+formalization does not forbid two sets from being equal, so the theorem covers slightly more
+inputs than Definition~I.5 requires. \lean{dpre}, \lean{Cpre} and \lean{RPE} are $d_{v,k}$,
+$C_k(x)$ and the prefix equations of Definition~I.6 (the first $k$ elements are those with
+index $<k$).
+
+\subsection{What the check rests on}
+
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{Kernel and library.} The file is checked by Lean's kernel against Mathlib.
+  \texttt{\#print axioms} reports only \lean{propext}, \lean{Classical.choice} and
+  \lean{Quot.sound} for the main theorem, for the canonical reformulation and for the
+  examples. The file declares no axioms and uses no \lean{sorry}, \lean{admit},
+  \lean{native_decide}, \lean{implemented_by} or \lean{unsafe} code.
+\item \textbf{Independent replay.} \lean{leanchecker} and \lean{leanchecker-paranoid}
+  (shipped with the toolchain) replay every declaration of the compiled module through the
+  kernel, independently of the elaborator; both succeed.
+\item \textbf{Fidelity of the construction.} The definitions of Section~3 of the file
+  transcribe Section~8.1 formula by formula (Table~\ref{tab:construction}). As an external
+  check, kernel-evaluated theorems in Section~16 of the file reproduce exact numbers
+  printed in the paper's Appendix~B (Tables~10 and~13), and the main theorem decides both
+  worked examples correctly (Step~14).
+\end{itemize}
+
+% ================================================================= 2
+\section{Architecture of the formal proof}\label{sec:architecture}
+
+The formal proof follows the paper's chain of reasoning: canonical reformulation
+$\to$ construction $\to$ three gates (anchor early, every block coded, every prefix exact)
+$\to$ master identity and threshold. Figure~\ref{fig:map} shows how the main formal results
+depend on each other. Where the paper uses a geometric or analytic argument that is awkward
+to formalize (schedule surgery in Lemma~I.3, the profile integral in (8.10)), the formal
+proof uses an exact discrete replacement. These places are marked ``Difference from the paper''
+in Section~\ref{sec:steps}; none of them changes the mathematics of the reduction.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  every node/.style={font=\footnotesize},
+  box/.style={draw=accent!55, line width=0.6pt, rounded corners=2pt, fill=white,
+              text width=2.72cm, align=center, inner sep=3pt, minimum height=1.32cm,
+              execute at begin node={\hyphenpenalty=10000\exhyphenpenalty=10000}},
+  top/.style={box, fill=accentsoft, draw=accent, line width=0.9pt, text width=4.4cm},
+  mid/.style={box, fill=accentsoft!55, text width=3.5cm},
+  found/.style={box, fill=codebg, draw=muted!55},
+  dep/.style={-{Stealth[length=4.5pt,width=4pt]}, draw=muted!85, line width=0.55pt},
+  wire/.style={draw=muted!85, line width=0.55pt},
+]
+\newcommand{\bx}[3]{\textbf{#1}\\[1pt]{\ttfamily\scriptsize #2}\\[1pt]{\scriptsize\color{muted}#3}}
+
+% ---- level 0 and 1
+\node[top]   (T)  at (0,0)        {\bx{Theorem I.2 (formal core)}{AWET\_strong\_reduction}{correctness and polynomial bounds}};
+\node[mid]   (C)  at (-3.25,-2.05){\bx{Correctness}{reduction\_iff}{Lemmas I.17, I.18}};
+\node[mid]   (Z)  at (4.2,-2.05)  {\bx{Numbers at most $(n{+}1)^{650}$}{size\_bound}{Lemma I.19}};
+
+% ---- level 2: what the correctness proof uses directly
+\node[box]   (Y)  at (-6.5,-4.6)  {\bx{Canonical form}{yes\_iff}{Lemma I.3, Prop.~I.4}};
+\node[box]   (R)  at (-3.25,-4.6) {\bx{Reduction I}{exactCover\_iff\_RPE}{Lemmas I.7--I.9}};
+\node[box]   (G1) at (0,-4.6)     {\bx{Gate 1: anchor early}{anchor\_gate}{(8.25)}};
+\node[box]   (G2) at (3.25,-4.6)  {\bx{Gate 2: blocks coded}{load\_lock\\two\_states}{Lemmas I.15, I.11}};
+\node[box]   (G3) at (6.5,-4.6)   {\bx{Gate 3: prefixes exact}{master\\abs\_Res\_le}{Lemma I.16\\(8.32)--(8.33)}};
+
+% ---- level 3 and 4: foundations
+\node[found] (F0) at (-6.5,-7.4) {\bx{Schedules vs.\ early sets}{exists\_sched\_cost\_eq\\exists\_Φ\_le\_cost}{Steps 1--2}};
+\node[found] (F1) at (0,-7.4)    {\bx{Objective, anchor early}{phiQ\_decomp\\quad\_ge\_two}{(8.23), (8.24)}};
+\node[found] (F2) at (3.25,-7.4) {\bx{Coded expansion}{R0\_coded\\coded\_objective}{(8.14), (8.26)}};
+\node[found] (F4) at (6.5,-7.4)  {\bx{Profile decomposition}{J4\_decomp\\bandSum\_bounds}{(8.9)--(8.12)}};
+\node[found] (F5) at (3.25,-9.95)  {\bx{Pair compression}{pair\_compress}{Lemma I.13}};
+\node[found] (F6) at (6.5,-9.95)   {\bx{Scale separation}{phys\_sep, eff\_gap\\eff\_width}{Lemmas I.12, I.14}};
+
+% ---- arrows
+\draw[dep] (C.north) -- (T.south west);
+\draw[dep] (Z.north) -- (T.south east);
+\draw[dep] (Y.north) -- ([xshift=-1.2cm]C.south);
+\draw[dep] (R.north) -- (C.south);
+% bus from the three gates into the correctness box
+\coordinate (bus) at (0,-3.35);
+\draw[wire] (G1.north) -- (G1.north |- bus);
+\draw[wire] (G2.north) -- (G2.north |- bus);
+\draw[wire] (G3.north) -- (G3.north |- bus);
+\draw[wire] (G3.north |- bus) -- ([xshift=1.2cm]C.south |- bus);
+\draw[dep] ([xshift=1.2cm]C.south |- bus) -- ([xshift=1.2cm]C.south);
+\fill[muted!85] (G1.north |- bus) circle (1.1pt) (G2.north |- bus) circle (1.1pt);
+
+\draw[dep] (F0) -- (Y);
+\draw[dep] (F1.north) -- (G2.south west);
+\draw[dep] (F1.east) -- (F2.west);
+\draw[dep] (F2.north) -- (G3.south west);
+\draw[dep] (F4) -- (G3);
+\draw[dep] (F5.north east) -- (F4.south west);
+\draw[dep] (F6) -- (F4);
+\draw[dep] (F6) -- (F5);
+\end{tikzpicture}
+\caption{Dependency structure of the formal proof. Each box names the main Lean result and
+the corresponding item of the paper; an arrow means ``is used to prove''.}
+\label{fig:map}
+\end{figure}
+
+% ================================================================= 3
+\section{The proof, step by step}\label{sec:steps}
+
+Each step below states what the paper claims, shows the Lean statement (proof bodies are
+elided and the comment gives their length; a few long lines are re-wrapped to fit the page),
+and explains how the formal proof goes. Lean names
+refer to \lean{AWET_PartI.lean}; Appendix~\ref{app:filemap} lists where each part sits in the file.
+
+% ----------------------------------------------------------------- step 1
+\subsection{Step 1 --- Canonical schedules realize \texorpdfstring{$\Phi(E)$}{Phi(E)} (Proposition I.4)}\label{step:canon}
+
+\begin{paperbox}
+\paperlabel{Proposition I.4}
+For a nonempty early set $E$ with $T=J\setminus E$, the due-date-aligned canonical schedule
+(early jobs before $d$ in ratio order, tardy jobs after $d$ in ratio order) is feasible and costs
+\[
+\Phi(E)=\sum_{\{i,j\}\subseteq E}p_ip_j\min\{r_i,r_j\}+\sum_{\{i,j\}\subseteq T}p_ip_j\min\{s_i,s_j\}+\sum_{i\in T}p_i^2s_i,
+\qquad r_i=\tfrac{w^E_i}{p_i},\ s_i=\tfrac{w^L_i}{p_i}.
+\]
+\end{paperbox}
+In Lean the pair coefficients are written without division, since
+$p_ip_j\min\{r_i,r_j\}=\min\{p_jw^E_i,\,p_iw^E_j\}$:
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ early pair coefficient `p\PYZus{}i p\PYZus{}j min(r\PYZus{}i, r\PYZus{}j)` written without division }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{eP}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{i}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{min}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wE}\PY{+w}{ }\PY{n}{i}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wE}\PY{+w}{ }\PY{n}{j}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ tardy pair coefficient `p\PYZus{}i p\PYZus{}j min(s\PYZus{}i, s\PYZus{}j)` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{tP}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{i}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{min}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{i}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{j}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ The canonical set objective `Φ(E)` of Proposition I.4 (equation (SO)). }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Φ}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{o}{(}\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{i}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{k}{if}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{k}{then}
+\PY{+w}{      }\PY{o}{(}\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{eP}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∉}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∉}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{tP}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}\PY{o}{)}
+\PY{+w}{    }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}
+\PY{+w}{  }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{i}\PY{o}{,}\PY{+w}{ }\PY{k}{if}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{i}
+\end{Verbatim}
+\end{leanbox}
+The canonical schedule is defined by explicit integer completion times. An early job $j$
+finishes at $d$ minus the processing of the early jobs placed after it (those with a larger
+early ratio, ties broken by index); a tardy job finishes at $d+p_j$ plus the processing of the
+tardy jobs placed before it:
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ Completion times of the canonical schedule of `E`: the early jobs end at `d` in}
+\PY{l+s+sd}{nondecreasing order of early ratio towards `d`, the tardy jobs start at `d` in nonincreasing}
+\PY{l+s+sd}{order of tardy ratio. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{canC}\PY{+w}{ }\PY{o}{(}\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{k}{if}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{d}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{keyE}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{keyE}\PY{+w}{ }\PY{n}{i}\PY{o}{)}\PY{o}{,}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}
+\PY{+w}{  }\PY{k}{else}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{d}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{n+nb+bp}{ᶜ}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{keyL}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{keyL}\PY{+w}{ }\PY{n}{i}\PY{o}{)}\PY{o}{,}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Proposition I.4 (feasibility part).** Every early set `E` is realised by a feasible}
+\PY{l+s+sd}{schedule whose cost is exactly `Φ(E)`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{exists\PYZus{}sched\PYZus{}cost\PYZus{}eq}\PY{+w}{ }\PY{o}{(}\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Sched}\PY{o}{,}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{cost}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 1\PYZhy{}line term proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} Feasibility (\lean{canC_start}, \lean{canC_overlap}) is
+bookkeeping with these prefix sums. For the cost, each job contributes $w^E_j$ times the
+processing of the early jobs closer to $d$ (or $w^L_j$ times its own and the earlier tardy
+processing); regrouping by pairs gives $\Phi(E)$, because when $j$ is closer to $d$ than $i$
+the pair contributes $p_jw^E_i=\min\{p_jw^E_i,p_iw^E_j\}$ (\lean{eP_of_keyE_lt}). This is
+exactly the exchange-order fact used in the paper. A small generic lemma
+(\lean{sum_key_lt_eq}) re-indexes a pair sum along any injective key.
+
+\begin{notebox}
+\notelabel{Difference from the paper}
+The formal statement also allows $E=\emptyset$ (all jobs tardy, the first one starting at $d$,
+which is feasible because $d\ge 0$). This is harmless and slightly simplifies the next step.
+\end{notebox}
+
+% ----------------------------------------------------------------- step 2
+\subsection{Step 2 --- Every schedule costs at least \texorpdfstring{$\min_E\Phi(E)$}{min Phi(E)} (Lemma I.3, (6.1))}\label{step:lower}
+
+\begin{paperbox}
+\paperlabel{Lemma I.3 and (6.1)}
+Some optimal schedule has no idle time, a completion at $d$, and both sides in ratio order;
+hence $\mathrm{OPT}=\min_{E}\Phi(E)$. The paper proves the structural lemma by closing idle
+intervals, shifting a compact block to put a completion at $d$, and adjacent exchanges.
+\end{paperbox}
+Formalizing these schedule-surgery arguments for real-valued schedules would be laborious.
+The formal proof instead establishes the inequality that the paper actually uses: every
+feasible schedule costs at least $\Phi(E)$ for some early set $E$.
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ Packing: pairwise disjoint processing intervals inside `[a, b]` have total length at most}
+\PY{l+s+sd}{`b }\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{ a`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Sched}\PY{n+nb+bp}{.}\PY{n}{pack}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Sched}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{a}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{F}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{b}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{,}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{b}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{o}{(}\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{F}\PY{o}{,}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{σ}\PY{n+nb+bp}{.}\PY{n}{C}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{σ}\PY{n+nb+bp}{.}\PY{n}{C}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{b}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{→}
+\PY{+w}{      }\PY{o}{(}\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{F}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{b}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 15 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the completion}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{order cost expression of an early set }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{noncomputable}\PY{+w}{ }\PY{k+kn}{def}\PY{+w}{ }\PY{n}{ordCost}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Sched}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{k}{if}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wE}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{σ}\PY{n+nb+bp}{.}\PY{n}{C}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{σ}\PY{n+nb+bp}{.}\PY{n}{C}\PY{+w}{ }\PY{n}{i}\PY{o}{)}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}
+\PY{+w}{       }\PY{k}{else}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{n+nb+bp}{ᶜ}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{σ}\PY{n+nb+bp}{.}\PY{n}{C}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{σ}\PY{n+nb+bp}{.}\PY{n}{C}\PY{+w}{ }\PY{n}{j}\PY{o}{)}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{o}{)}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Φ\PYZus{}le\PYZus{}ordCost}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Sched}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{n}{J}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{ordCost}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 57 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.3 }\PY{l+s+sd}{/}\PY{l+s+sd}{ Proposition I.4 (optimality part).** Every feasible schedule costs at least}
+\PY{l+s+sd}{`Φ(E)` for some early set `E`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{exists\PYZus{}Φ\PYZus{}le\PYZus{}cost}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Sched}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{n}{J}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℝ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{cost}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 171 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Canonical reformulation (Lemma I.3 + Proposition I.4).** The AWET decision problem with}
+\PY{l+s+sd}{bound `B` has a yes}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{answer iff some early set `E` has canonical cost `Φ(E) ≤ B`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{yes\PYZus{}iff}\PY{+w}{ }\PY{o}{(}\PY{n}{B}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Yes}\PY{+w}{ }\PY{n}{B}\PY{+w}{ }\PY{n+nb+bp}{↔}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{n}{J}\PY{o}{,}\PY{+w}{ }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{B}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 7 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} Fix a schedule $\sigma$ and let $E_0=\{j: C_j\le d\}$.
+\begin{enumerate}[leftmargin=20pt,label=(\roman*)]
+\item \emph{Packing} (\lean{Sched.pack}): if the processing intervals of a set $F$ of jobs lie
+  inside $[a,b]$, then $\sum_{i\in F}p_i\le b-a$ (induction on $F$, removing the job that
+  completes last).
+\item \lean{ordCost} is the cost of the pair structure induced by the completion order of
+  $\sigma$. Every pair term of the form $p_jw^E_i$ is at least
+  $\min\{p_jw^E_i,\,p_iw^E_j\}$, hence $\Phi(E)\le\mathrm{ordCost}(\sigma,E)$ for every $E$
+  (\lean{Φ_le_ordCost}).
+\item If no job is tardy, packing the early jobs that complete after $j$ into $[C_j,d]$ gives
+  $w^E_j(d-C_j)\ge w^E_j\sum_{i\in E_0,\,C_i>C_j}p_i$, hence
+  $\mathrm{cost}(\sigma)\ge\mathrm{ordCost}(\sigma,E_0)\ge\Phi(E_0)$.
+\item Otherwise let $j^\ast$ be the tardy job that completes first and let
+  $\theta^+=\max\{0,\,d-(C_{j^\ast}-p_{j^\ast})\}\in[0,p_{j^\ast}]$ be the part of $j^\ast$ that
+  straddles $d$. Packing gives, for early $j$ and tardy $j$ respectively,
+  \[
+  d-C_j\ \ge\ \sum_{\substack{i\in E_0\\ C_i>C_j}}p_i+\theta^+,\qquad
+  C_j-d\ \ge\ p_j+\sum_{\substack{i\notin E_0\\ C_i<C_j}}p_i-\theta^+ ,
+  \]
+  so $\mathrm{cost}(\sigma)\ge\mathrm{ordCost}(\sigma,E_0)+\theta^+(W_E-W_L)$ with
+  $W_E=\sum_{E_0}w^E_j$ and $W_L=\sum_{j\notin E_0}w^L_j$.
+\item If $W_E\ge W_L$, drop the last term. If $W_E<W_L$, move $j^\ast$ to the early side: an exact
+  identity gives
+  $\mathrm{ordCost}(\sigma,E_0\cup\{j^\ast\})=\mathrm{ordCost}(\sigma,E_0)+p_{j^\ast}(W_E-W_L)$,
+  which is at most $\mathrm{ordCost}(\sigma,E_0)+\theta^+(W_E-W_L)$ because
+  $\theta^+\le p_{j^\ast}$ and $W_E-W_L<0$.
+\end{enumerate}
+Together with Step~1 this gives \lean{yes_iff}: \emph{AWET with bound $B$ is a yes-instance if and
+only if $\Phi(E)\le B$ for some early set $E$}. This is the only place where real-valued
+schedules appear; everything downstream works with finite sets of jobs and exact integer or
+rational arithmetic. It is also the formal content of the NP-membership argument after
+Theorem~I.2: the early set $E$ is a certificate.
+
+\begin{notebox}
+\notelabel{Difference from the paper}
+The formal proof does not use the structural Lemma~I.3 itself (idle-time removal, alignment
+with $d$, adjacent exchanges). It replaces it by the lower bound above, which is affine in the
+straddle $\theta^+$ and therefore needs no sorting of the schedule. The conclusion used later,
+$\mathrm{OPT}=\min_E\Phi(E)$, is the same.
+\end{notebox}
+
+% ----------------------------------------------------------------- step 3
+\subsection{Step 3 --- Reduction I: exact cover \texorpdfstring{$\iff$}{iff} prefix exactness (Lemmas I.7--I.9)}\label{step:red1}
+
+\begin{paperbox}
+\paperlabel{Lemmas I.7--I.9}
+With $d_{v,k}=|S_v\cap\{e_1,\dots,e_k\}|$ and $C_k(x)=\sum_v d_{v,k}x_v$:
+$C_k(x)-C_{k-1}(x)=\sum_{v:\,e_k\in S_v}x_v$, and $x$ selects an exact cover iff $C_k(x)=k$ for
+$k=1,\dots,n$.
+\end{paperbox}
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.7 (prefix}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{difference identity).** }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Cpre\PYZus{}succ}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cpre}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{o}{(}\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cpre}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{k}
+\PY{+w}{      }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{o}{(}\PY{n}{univ}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{true}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{h}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{S}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{k}\PY{o}{)}\PY{o}{)}\PY{n+nb+bp}{.}\PY{n}{card}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 6 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ regularity: the first `k` elements carry `3k` incidences }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{sum\PYZus{}dpre}\PY{+w}{ }\PY{o}{(}\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hk}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{dpre}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{3}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 15 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemmas I.8 and I.9.** An exact cover is exactly a solution of the prefix equations. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{exactCover\PYZus{}iff\PYZus{}RPE}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{IsExactCover}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{↔}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{RPE}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 29 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{n\PYZus{}ge\PYZus{}three}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{3}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 5 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} \lean{Cpre_succ} splits the filter defining $d_{v,k+1}$ into
+$d_{v,k}$ plus the indicator of ``element $k$ lies in $S_v$''. Both directions of
+\lean{exactCover_iff_RPE} then telescope. \lean{sum_dpre} (regularity: the first $k$ elements
+carry $3k$ incidences) is used later in (8.13). \lean{n_ge_three} records that a nonempty
+instance automatically has $n\ge 3$, which is the standing assumption of Section~8. The formal
+reduction goes directly from RXC3 to AWET, so Corollary~I.10 (NP-completeness of RPE) is not
+needed.
+
+% ----------------------------------------------------------------- step 4
+\subsection{Step 4 --- The construction of Section 8.1}\label{step:construction}
+
+The construction is transcribed definition by definition; Table~\ref{tab:construction} maps the
+paper's symbols to Lean names. Indices are $0$-based: block $v\in\{0,\dots,n-1\}$ is the
+paper's block $v+1$, and pair $h\in\{0,1,2,3\}$ of a block is the controller ($h=0$) or the
+occurrence pair of element $S_{v,h-1}$. A state job is a triple $(v,h,b)$: $b=\mathtt{false}$
+is the heavy job $A_{vh}$ and $b=\mathtt{true}$ the light job $B_{vh}$ of Table~2.
+
+\begin{table}[ht]
+\centering\small
+\renewcommand{\arraystretch}{1.17}
+\rowcolors{2}{white}{rowgray}
+\begin{tabularx}{\textwidth}{@{}l l X@{}}
+\toprule
+\textbf{Paper} & \textbf{Lean} & \textbf{Definition in the file} \\
+\midrule
+$N,\ G,\ M,\ T$ & \lean{NN}, \lean{G}, \lean{M}, \lean{T} & $n+1$, $N^{20}$, $N^{40}$, $N^{50}$ \\
+$Q_0,\dots,Q_3$ & \lean{Qc h} & $10^{h+1}$ \\
+$\kappa(k_{vh})$ & \lean{ht v h} & $0$ for the controller, $n-S_{v,h-1}$ for an occurrence pair (``height'') \\
+$P_{vh}$ \;(8.1)--(8.2) & \lean{P v h} & $T+M\cdot\mathrm{ht}+Q_h$ \\
+$p_i$, $\epsilon_i$ \;(Table 2) & \lean{pS}, \lean{eps} & $P_{vh}+3$ / $P_{v0}$ (controller), $P_{vh}+1$ / $P_{vh}$ (occurrence); signs of Table~2 \\
+$\beta_v$ & \lean{β v} & $\sum_hP_{vh}+3$ \\
+$\lambda_v,\ L_v,\ K_{uv}$ & \lean{lam}, \lean{L}, \lean{K} & $G+n-v$ ($=G+n-v'+1$ for $v'=v+1$), $2\lambda_v$, $\min\{L_u,L_v\}$ \\
+$f=K\beta$ & \lean{f v} & $\sum_uK_{vu}\beta_u$ \\
+$r_i$ \;(8.5), $w^E_i$ & \lean{rS}, \lean{wES} & $f_v+\lambda_vp_i$, $p_ir_i$ \\
+$\rho_{vh}$ & \lean{ρ v h} & $f_v+\lambda_v(2P_{vh}+3)$ / $f_v+\lambda_v(2P_{vh}+1)$ \\
+$R_k=[\underline\rho_k,\overline\rho_k]$ & \lean{lo η}, \lean{hi η} & min / max of the effective ratios at height $\eta$ \\
+$\Delta_k$ \;(8.6)--(8.7), $W$ & \lean{Δ k}, \lean{W} & \lean{lo (n-k+1) - hi (n-k)}; $\sum_{\eta=0}^{n}(\mathrm{hi}_\eta-\mathrm{lo}_\eta)$ \\
+$\alpha_{ij}$, $a^0_v$ \;(8.14) & \lean{α}, \lean{a0} & $\min\{p_jw^E_i,p_iw^E_j\}$; the baseline field (within-block pairs as half the ordered sum) \\
+$a^\star_v$ \;(8.15), $D_v$ \;(8.16) & \lean{astar}, \lean{Dv} & $\tfrac14\sum_k\Delta_kkd_{v,k}$; $\sum_{i\in B_v}\epsilon_ip_i^2$ \\
+$\eta_v$ \;(8.17), $e_v$ \;(8.18) & \lean{eta}, \lean{ev} & $\round(4(a^0_v-a^\star_v)/D_v)$ with $\round x=\lfloor x+\tfrac12\rfloor$; $a^0_v-\eta_vD_v/4-a^\star_v$ \\
+$\bar\eta_{ij}$, $U$ \;(8.21), $H$ \;(8.22) & \lean{etabar}, \lean{U}, \lean{H} & as in the paper; $H=U+2\max_v|\eta_v|+2$ \\
+$s_i$ \;(8.20), $w^L_i$ & \lean{sS}, \lean{wLS} & $HL_v+\eta_v$, $p_is_i$ \\
+anchor $a$ & \lean{Job.anchor} & $p_a=H$, $w^E_a=H(1+\max_ir_i)$, $w^L_a=Hs_a$ \\
+$C^\star$, $s_a$ \;(8.25) & \lean{Cstar}, \lean{sa} & $\Phi$ of the coded set $\sigma\equiv{+1}$ with the anchor early; $1+\lceil C^\star/H^2\rceil$ \\
+$J_{uv}$ \;(8.10), $C_0$ \;(8.26) & \lean{Jc}, \lean{C0} & $\tfrac14\sum\epsilon_i\epsilon_j\alpha_{ij}$; $C^\star-\sum_v(a^\star_v+e_v)-\sum_{u<v}J_{uv}$ \\
+$A$ \;(8.29), $\Gamma$ \;(8.32) & \lean{Aconst}, \lean{Gam} & $C_0-\tfrac18\sum_k\Delta_k(k^2+\sum_vd_{v,k}^2)$; $\tfrac98n^2W+\tfrac18\sum_vD_v$ \\
+$B$ \;(8.34) & \lean{Bnd} & $\lfloor A+\Gamma\rfloor$ \\
+AWET instance & \lean{inst} & $8n$ state jobs \lean{Job.st (v,h,b)} and the anchor \\
+\bottomrule
+\end{tabularx}
+\caption{The construction of Section 8.1 and its Lean counterparts.}
+\label{tab:construction}
+\end{table}
+
+Two excerpts show the style; the full list is in Section~3 of the file.
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ `N = n + 1` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{NN}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{G}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{NN}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{20}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{M}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{NN}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{40}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{T}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{NN}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{50}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ pair codes `Q\PYZus{}0,…,Q\PYZus{}3 = 10, 100, 1000, 10000` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Qc}\PY{+w}{ }\PY{o}{(}\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{l+m+mi}{10}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{o}{(}\PY{n}{h}\PY{n+nb+bp}{.}\PY{n}{val}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ height of pair `h` of block `v`: `0` for the controller, the reversed level `κ(k) = n }\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{ k`}
+\PY{l+s+sd}{(0}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{based element `k`) for the occurrence pair of element `S v (h}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{1)`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{ht}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{k}{if}\PY{+w}{ }\PY{n}{hh}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{h}\PY{n+nb+bp}{.}\PY{n}{val}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{S}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{h}\PY{n+nb+bp}{.}\PY{n}{val}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{,}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{omega}\PY{n+nb+bp}{⟩}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ base processing values (8.1)}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{(8.2): `P\PYZus{}\PYZob{}vh\PYZcb{} = T + M κ + Q\PYZus{}h` (`κ = 0` for the controller) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{P}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{T}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{M}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{Qc}\PY{+w}{ }\PY{n}{h}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ heavy increment: 3 for the controller pair, 1 for an occurrence pair }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{cA}\PY{+w}{ }\PY{o}{(}\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{if}\PY{+w}{ }\PY{n}{h}\PY{n+nb+bp}{.}\PY{n}{val}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{l+m+mi}{3}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{1}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ reference sign `ε` (Table 2); `b = false` is the heavy job `A`, `b = true` the light job}
+\PY{l+s+sd}{`B` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{eps}\PY{+w}{ }\PY{o}{(}\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{b}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{h}\PY{n+nb+bp}{.}\PY{n}{val}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{l+m+mi}{1}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{b}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{l+m+mi}{1}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ processing time of a state job (Table 2) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{pS}\PY{+w}{ }\PY{o}{(}\PY{n}{i}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{P}\PY{+w}{ }\PY{n}{i}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{+w}{ }\PY{n}{i}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{i}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{n}{cA}\PY{+w}{ }\PY{n}{i}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ target load `β\PYZus{}v` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{β}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{o}{(}\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{h}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{P}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{3}
+\end{Verbatim}
+\end{leanbox}
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Job}\PY{+w}{ }\PY{o}{(}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{k+kt}{Type}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{Option}\PY{+w}{ }\PY{o}{(}\PY{n}{SJ}\PY{+w}{ }\PY{n}{n}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ job data shared by the preliminary and final instances }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{pJ}\PY{+w}{ }\PY{o}{(}\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{j}\PY{n+nb+bp}{.}\PY{n}{elim}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pS}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{wEJ}\PY{+w}{ }\PY{o}{(}\PY{n}{j}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{j}\PY{n+nb+bp}{.}\PY{n}{elim}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{rmax}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wES}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the coded early set of a spin vector: the anchor and every state job with `σ\PYZus{}v ε\PYZus{}i = +1` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{codedE}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n}{univ}\PY{n+nb+bp}{.}\PY{n}{filter}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{j}\PY{n+nb+bp}{.}\PY{n}{elim}\PY{+w}{ }\PY{n}{true}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{i}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{decide}\PY{+w}{ }\PY{o}{(}\PY{n}{sgn}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{n}{i}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{eps}\PY{+w}{ }\PY{n}{i}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{+w}{ }\PY{n}{i}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}
+\PY{+w}{      }\PY{n}{true}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the benchmark cost `C⋆` of the coded assignment `σ ≡ +1` with the anchor early }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Cstar}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{preInst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n+nb+bp}{\PYZus{}}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{true}\PY{o}{)}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ anchor tardiness ratio (8.25) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{sa}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{⌈}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cstar}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{/}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{2}\PY{n+nb+bp}{⌉}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **The constructed AWET instance** (Section 8.1): `8n` state jobs and one anchor. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{inst}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{k+kn}{where}
+\PY{+w}{  }\PY{n}{p}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pJ}
+\PY{+w}{  }\PY{n}{wE}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wEJ}
+\PY{+w}{  }\PY{n}{wL}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{fun}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{j}\PY{n+nb+bp}{.}\PY{n}{elim}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{sa}\PY{o}{)}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wLS}
+\PY{+w}{  }\PY{n}{hp}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pJ\PYZus{}pos}
+\PY{+w}{  }\PY{n}{hwE}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wEJ\PYZus{}pos}
+\PY{+w}{  }\PY{n}{hwL}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{fun}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{    }\PY{n}{rcases}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{cases}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{k}{with}\PY{+w}{ }\PY{n}{rfl}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{i}\PY{o}{,}\PY{+w}{ }\PY{n}{rfl}\PY{n+nb+bp}{⟩}
+\PY{+w}{    }\PY{n+nb+bp}{·}\PY{+w}{ }\PY{n}{simp}\PY{+w}{ }\PY{n}{only}\PY{+w}{ }\PY{o}{[}\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{elim\PYZus{}anchor}\PY{o}{]}\PY{n+nb+bp}{;}\PY{+w}{ }\PY{n}{exact}\PY{+w}{ }\PY{n}{mul\PYZus{}pos}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H\PYZus{}pos}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{sa\PYZus{}pos}
+\PY{+w}{    }\PY{n+nb+bp}{·}\PY{+w}{ }\PY{n}{simp}\PY{+w}{ }\PY{o}{[}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wLS\PYZus{}pos}\PY{+w}{ }\PY{n}{i}\PY{o}{]}
+\end{Verbatim}
+\end{leanbox}
+
+\begin{notebox}
+\notelabel{Formalization details}
+(i) $C^\star$ is defined through a \emph{preliminary} instance \lean{preInst} whose anchor
+tardiness weight is a placeholder, because $s_a$ (hence $w^L_a$) depends on $C^\star$.
+\lean{Φ_pre_eq_inst} proves that both instances give the same $\Phi(E)$ whenever the anchor is
+early, which is the paper's remark that ``this cost does not depend on the anchor's tardiness
+ratio''. (ii) Where the paper leaves a choice open, the formalization fixes one: the benchmark
+coded assignment for $C^\star$ is $\sigma\equiv+1$, ties in (8.17) round up, and $C_0$ is read off
+from the benchmark assignment (the theorem \lean{coded_objective} below shows that this is the
+constant coefficient of (8.26)).
+\end{notebox}
+
+% ----------------------------------------------------------------- step 5
+\subsection{Step 5 --- Two zero-load states (Lemma I.11 and (8.4))}\label{step:i11}
+
+\begin{paperbox}
+\paperlabel{Lemma I.11, (8.4)}
+For a sign vector $c$ on block $v$, $\sum_{i\in B_v}p_ic_i=0$ iff $c=\pm\epsilon$. Equivalently,
+the tardy load of block $v$ is $b_v=\beta_v$ iff the block is in one of its two coded
+orientations.
+\end{paperbox}
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the digit}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{decoding step of Lemma I.11 }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{digit\PYZus{}decode}\PY{+w}{ }\PY{o}{(}\PY{n}{T}\PY{+w}{ }\PY{n}{M}\PY{+w}{ }\PY{n}{U}\PY{+w}{ }\PY{n}{Z}\PY{+w}{ }\PY{n}{Qs}\PY{+w}{ }\PY{n}{res}\PY{+w}{ }\PY{n}{B}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hM0}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{M}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hT}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{B}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{M}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{11113}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{T}\PY{o}{)}
+\PY{+w}{    }\PY{o}{(}\PY{n}{hM}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{11113}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{M}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hU}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{U}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{n}{U}\PY{n+nb+bp}{|}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hZ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{n}{Z}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{B}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hQ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{n}{Qs}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{l+m+mi}{11110}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hres}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{n}{res}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}
+\PY{+w}{        }\PY{l+m+mi}{3}\PY{o}{)}
+\PY{+w}{    }\PY{o}{(}\PY{n}{heq}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{T}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{U}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{M}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{Z}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{Qs}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{res}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{U}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{Z}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{Qs}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{res}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 22 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.11.** A block whose tardy processing equals `β\PYZus{}v` is in one of the two coded}
+\PY{l+s+sd}{orientations. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{two\PYZus{}states}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{early}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{+w}{ }\PY{n+nb+bp}{×}\PY{+w}{ }\PY{n}{Bool}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}
+\PY{+w}{    }\PY{o}{(}\PY{n}{hb}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{a}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{early}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pS}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{n}{a}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{v}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Bool}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{a}\PY{o}{,}\PY{+w}{ }\PY{n}{early}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{decide}\PY{+w}{ }\PY{o}{(}\PY{n}{sgn}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{eps}\PY{+w}{ }\PY{n}{a}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{+w}{ }\PY{n}{a}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 119 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{bq\PYZus{}coded}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bq}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{xE}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{n}{σ}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 11 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} \lean{two_states} takes an arbitrary early/tardy pattern
+\lean{early} of the eight jobs of block $v$ with tardy load $\beta_v$ and returns the spin
+$s$ of the block. Writing the load equation in the digits of $T$, $M$ and the pair codes, the
+abstract lemma \lean{digit_decode} peels off the $T$ digit and then the $M$ digit (both use only
+$|{\rm lower\ terms}|<$ digit, from $3nM+11113<T$ and $11113<M$). What is left is the code
+equation for the four pairs; \lean{pair_decode} solves it by exhaustive case analysis over the
+$2^8$ early/tardy patterns (each case closed by \lean{omega}), showing that only the two coded
+orientations survive. The converse (\lean{bq_coded}) is a direct computation.
+
+% ----------------------------------------------------------------- step 6
+\subsection{Step 6 --- Kernel field and scale separation (Lemmas I.12 and I.14)}\label{step:sep}
+
+\begin{paperbox}
+\paperlabel{Lemmas I.12, I.14}
+$4T<\beta_v<5T$; $f$ decreases and $0<f_1-f_n<10N^2T$. The physical ratio intervals of complete
+clusters are disjoint and ordered like their effective atoms; the bands satisfy
+$R_1>\dots>R_n>R_0$, every main gap $\Delta_k$ exceeds $GM$, and $W<15N^3T$.
+\end{paperbox}
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{β\PYZus{}bounds}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{4}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{T}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{l+m+mi}{5}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{T}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 12 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.12** (consequences used later): the kernel field is decreasing in the block index,}
+\PY{l+s+sd}{strictly, and its total variation is `\PYZlt{} 10 n² T`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{f\PYZus{}sub\PYZus{}bounds}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{w}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{huw}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{w}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{f}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{f}\PY{+w}{ }\PY{n}{w}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{f}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{f}\PY{+w}{ }\PY{n}{w}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{l+m+mi}{10}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{2}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{T}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 27 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the master numerical inequality behind all separations:}
+\PY{l+s+sd}{`10 n² T + 2 n T + 2 n² M + 20003 (G + n) \PYZlt{} G M` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{scale\PYZus{}key}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{l+m+mi}{10}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{2}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{T}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{2}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{T}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{2}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{2}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{M}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{20003}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{G}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}
+\PY{+w}{      }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{G}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{M}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 32 lines of tactic proof}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{valE}\PY{+w}{ }\PY{o}{(}\PY{n}{t}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{a}\PY{+w}{ }\PY{n}{Q}\PY{+w}{ }\PY{n}{c}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{f}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{lam}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{T}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{M}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{Q}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}
+\PY{+w}{    }\PY{n}{c}\PY{o}{)}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{above}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{g}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{k+kt}{Prop}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n+nb+bp}{∨}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{v}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ physical separation of clusters (first half of Lemma I.14) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{phys\PYZus{}sep}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{g}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hab}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{above}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{b}\PY{+w}{ }\PY{n}{b\PYZsq{}}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{rS}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{n}{h}\PY{o}{,}\PY{+w}{ }\PY{n}{b\PYZsq{}}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{rS}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n}{g}\PY{o}{,}\PY{+w}{ }\PY{n}{b}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 12 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ effective separation of clusters }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{eff\PYZus{}sep}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{g}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hab}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{above}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 10 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the main gap: consecutive heights are separated by more than `G M` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{eff\PYZus{}gap}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{g}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hht}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{G}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{M}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 5 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ band width bound }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{eff\PYZus{}width}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{g}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hht}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ht}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n+nb+bp}{|}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Wb}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 3 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} All physical early ratios ($t=1$) and effective ratios ($t=2$)
+have the common form \lean{valE t u a Q c} $=f_u+\lambda_u\bigl(t(T+Ma+Q)+c\bigr)$, so the
+separation arguments are proved once for both. The relation \lean{above u g v h} says that
+cluster $(u,g)$ is at a larger height than $(v,h)$, or at the same height with a smaller block
+index. \lean{phys_sep} and \lean{eff_sep} show that both the physical intervals and the
+effective atoms respect this order, which is the agreement of orders required by
+Lemma~I.13. \lean{eff_gap} and \lean{eff_width} give the gap and width bounds. All numerical
+comparisons reduce to the single inequality \lean{scale_key}, which holds because $N\ge4$.
+The band-level consequences are \lean{gap_gt} ($\Delta_k>GM$) and \lean{W_le}
+($W\le 15N^{53}=15N^3T$).
+
+% ----------------------------------------------------------------- step 7
+\subsection{Step 7 --- Exact pair compression and the profile decomposition (Lemma I.13, (8.9)--(8.12))}\label{step:compress}
+
+\begin{paperbox}
+\paperlabel{Lemma I.13, (8.10)--(8.12)}
+For complete clusters $g,h$ of different blocks whose orders agree,
+$I^{\rm phys}(g,h)=m_gm_h\min\{\rho_g,\rho_h\}$. Hence
+$J_{uv}=\tfrac14\sum_{g,h}m_{ug}m_{vh}\min\{\rho_{ug},\rho_{vh}\}=\tfrac14\int_0^\infty F_u(t)F_v(t)\,dt$,
+and on the $k$-th main gap the profile equals $F_v=d_{v,k}$.
+\end{paperbox}
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.13 (exact pair compression).** For clusters of different blocks the four signed}
+\PY{l+s+sd}{physical early interactions equal `m\PYZus{}g m\PYZus{}h min(ρ\PYZus{}g, ρ\PYZus{}h)`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{pair\PYZus{}compress}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{huv}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{n}{v}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{g}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{b}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Bool}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{b\PYZsq{}}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Bool}\PY{o}{,}\PY{+w}{ }\PY{n}{eps}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n}{b}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{eps}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n}{b\PYZsq{}}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{α}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n}{g}\PY{o}{,}\PY{+w}{ }\PY{n}{b}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{n}{h}\PY{o}{,}\PY{+w}{ }\PY{n}{b\PYZsq{}}\PY{o}{)}
+\PY{+w}{      }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{mass}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{mass}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{min}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 22 lines of tactic proof}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{J4}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{+w}{ }\PY{n+nb+bp}{×}\PY{+w}{ }\PY{n}{Bool}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{b}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{+w}{ }\PY{n+nb+bp}{×}\PY{+w}{ }\PY{n}{Bool}\PY{o}{,}\PY{+w}{ }\PY{n}{eps}\PY{+w}{ }\PY{n}{a}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{+w}{ }\PY{n}{a}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{eps}\PY{+w}{ }\PY{n}{b}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{+w}{ }\PY{n}{b}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{α}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n}{a}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{n}{b}\PY{o}{)}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{J4\PYZus{}compress}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{huv}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{n}{v}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{J4}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{,}\PY{+w}{ }\PY{n}{mass}\PY{+w}{ }\PY{n}{g}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{mass}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{min}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{g}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ρ}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{h}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 7 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+The integral in (8.10) is replaced by an exact finite identity. Every atom position
+$x\in[\mathrm{lo}_0,\mathrm{hi}_n]$ is split into its portions inside the bands and inside the
+gaps,
+\[
+x=\mathrm{lo}_0+\sum_{\eta=0}^{n}\mathrm{bp}_\eta(x)+\sum_{\eta=0}^{n-1}\mathrm{gp}_\eta(x),
+\]
+where $\mathrm{bp}_\eta$ and $\mathrm{gp}_\eta$ clamp $x$ to band $\eta$ and to gap $\eta$. Clamping
+commutes with $\min$, so $\min\{\rho,\rho'\}$ splits layer by layer:
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{clampZ}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{n}{b}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{max}\PY{+w}{ }\PY{n}{a}\PY{+w}{ }\PY{o}{(}\PY{n}{min}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{b}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ band part and gap part of a point }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{bp}\PY{+w}{ }\PY{o}{(}\PY{n}{η}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{clampZ}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{lo}\PY{+w}{ }\PY{n}{η}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{hi}\PY{+w}{ }\PY{n}{η}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{lo}\PY{+w}{ }\PY{n}{η}
+
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{gp}\PY{+w}{ }\PY{o}{(}\PY{n}{η}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{clampZ}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{hi}\PY{+w}{ }\PY{n}{η}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{lo}\PY{+w}{ }\PY{o}{(}\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{hi}\PY{+w}{ }\PY{n}{η}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{layer\PYZus{}decomp}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{h1}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{lo}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{x}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{h2}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{hi}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{lo}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{range}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bp}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{range}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{gp}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 3 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Mab\PYZus{}eq\PYZus{}dpre}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{η}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hη}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Mab}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{dpre}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{η}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 13 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ each band contributes between `0` and `9 × width` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{bandSum\PYZus{}bounds}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{η}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hη}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bandSum}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bandSum}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{l+m+mi}{9}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{hi}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{lo}\PY{+w}{ }\PY{n}{η}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 35 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Profile decomposition (8.10)}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{(8.12)**: `4 J\PYZus{}\PYZob{}uv\PYZcb{}` = main}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{gap part + band part. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{J4\PYZus{}decomp}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{huv}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{n}{v}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{J4}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{range}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{gap}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{dpre}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{η}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{dpre}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{η}\PY{o}{)}
+\PY{+w}{      }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{range}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bandSum}\PY{+w}{ }\PY{n}{η}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 33 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} On gap $\eta$ an atom contributes the full gap length if it lies
+above the gap and $0$ otherwise (\lean{gp_atom}); the signed mass of block $u$ above gap $\eta$
+is $d_{u,n-\eta}$ (\lean{Mab_eq_dpre}), which is (8.11). Summing over atom pairs gives the
+main-gap term $\sum_\eta \mathrm{gap}_\eta\, d_{u,n-\eta}d_{v,n-\eta}$, that is,
+$4J^{\rm main}_{uv}$. For the band term the formal proof uses one more fact: inside one band a
+block has at most one atom, because the heights of a block are distinct. Hence the profile of a
+block on a band takes only the values $M^{\rm ab}$ and $M^{\rm ab}+M^{\rm at}$, which both lie in
+$[0,3]$, and every band contributes between $0$ and $9$ times its width
+(\lean{bandSum_bounds}).
+
+\begin{notebox}
+\notelabel{Difference from the paper}
+The paper bounds the band contribution through $|F_v(t)|\le 3$, which gives
+$|J_{uv}-J^{\rm main}_{uv}|\le\frac94W$. The discrete argument gives the sharper
+$0\le J_{uv}-J^{\rm main}_{uv}\le\frac94W$ (\lean{Jc_sub_Jmain}). Only the absolute bound is
+needed.
+\end{notebox}
+
+% ----------------------------------------------------------------- step 8
+\subsection{Step 8 --- The objective with an early anchor and the load lock (Lemma I.15, (8.23)--(8.24))}\label{step:lock}
+
+\begin{paperbox}
+\paperlabel{Lemma I.15}
+With the anchor early, the dominant assignment-dependent part of the objective is
+$\frac H2(b-\beta)^\top K(b-\beta)$ (8.23), where $b_v$ is the tardy load of block $v$; by
+(8.24) it is at least $H$ for every integer $b\ne\beta$, while all other assignment-dependent
+terms oscillate by at most $U-1<H$. Hence every optimum with the anchor early has $b=\beta$.
+\end{paperbox}
+First, the objective of any early set that contains the anchor is written in terms of state
+jobs only. The anchor's early ratio exceeds every state ratio, so each early state job
+contributes $p_ap_ir_i=Hw^E_i$:
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Formula (*)**: the canonical objective of an early set containing the anchor. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Φ\PYZus{}anchor\PYZus{}early}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{I}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Inst}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hI}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Agrees}\PY{+w}{ }\PY{n}{I}\PY{o}{)}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{o}{\PYZcb{}}
+\PY{+w}{    }\PY{o}{(}\PY{n}{hE}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{anchor}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{I}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{st}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wES}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}
+\PY{+w}{      }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{encS}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{encS}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{k}{then}
+\PY{+w}{          }\PY{o}{(}\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{st}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{st}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{α}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}
+\PY{+w}{            }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{st}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{∉}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{st}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{∉}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{τ}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}
+\PY{+w}{      }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{k}{if}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{st}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pS}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wLS}\PY{+w}{ }\PY{n}{s}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 22 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+The same expression, read as a polynomial in the early indicators $x_s\in\{0,1\}$, is
+\lean{phiQ}, and its exact decomposition is the formal version of (8.23):
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the canonical objective of an anchor}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{early set, as a polynomial in its early indicators }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{phiQ}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{s}\PY{o}{,}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wES}\PY{+w}{ }\PY{n}{s}\PY{o}{)}
+\PY{+w}{    }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{psum}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{α}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{t}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{τ}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{o}{)}
+\PY{+w}{    }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{s}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pS}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{wLS}\PY{+w}{ }\PY{n}{s}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the residual `R₀` of Lemma I.15 }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{R0}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{psum}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{α}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{o}{)}
+\PY{+w}{    }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{psum}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{t}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pS}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pS}\PY{+w}{ }\PY{n}{t}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{etabar}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n}{t}\PY{o}{)}\PY{o}{)}
+\PY{+w}{    }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{s}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{pS}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{2}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{eta}\PY{+w}{ }\PY{n}{s}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the load}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{lock quadratic `(b }\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{ β)ᵀ K (b }\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{ β)` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{lockQ}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{K}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bq}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{u}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bq}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{v}\PY{o}{)}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.15, exact form**: on anchor}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{early sets, the objective is a constant plus the}
+\PY{l+s+sd}{dominant load}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{lock penalty `(H}\PY{l+s+sd}{/}\PY{l+s+sd}{2)(b}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{β)ᵀK(b}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{β)` plus the residual `R₀`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{phiQ\PYZus{}decomp}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hx}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{s}\PY{o}{,}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{∨}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{phiQ}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{K0}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{/}\PY{+w}{ }\PY{l+m+mi}{2}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{lockQ}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{R0}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 93 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} The tardy pair coefficient splits exactly as
+$\tau_{st}=H\,p_sp_tK_{v(s)v(t)}+p_sp_t\bar\eta_{st}$ (\lean{τ_eq}); this uses the tardy order
+$s_i>s_j$ for $\mathrm{blk}(i)<\mathrm{blk}(j)$ (\lean{sS_strict}, \lean{min_sS}). The
+$H$-terms of the tardy pairs, the tardy self terms and the anchor interactions combine into
+$\frac H2(b-\beta)^\top K(b-\beta)$ plus a constant; as in the paper, the square-processing
+terms $q_v$ cancel exactly because $L_v=2\lambda_v$ and $f=K\beta$. Everything else is
+collected in $R_0$. The positive definiteness (8.24) and the oscillation bound are:
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ prefix}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{square representation (8.24) of the minimum}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{kernel quadratic form }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{quad\PYZus{}prefix}\PY{+w}{ }\PY{o}{(}\PY{n}{y}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{K}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{y}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{y}\PY{+w}{ }\PY{n}{v}
+\PY{+w}{      }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{range}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Lnat}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Lnat}\PY{+w}{ }\PY{o}{(}\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}
+\PY{+w}{          }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{k}{if}\PY{+w}{ }\PY{n}{u}\PY{n+nb+bp}{.}\PY{n}{val}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{n}{y}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{2}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 18 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Positive definiteness**: every nonzero integer load error costs at least `2`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{quad\PYZus{}ge\PYZus{}two}\PY{+w}{ }\PY{o}{(}\PY{n}{y}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hint}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{z}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{,}\PY{+w}{ }\PY{n}{y}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{z}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hne}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n}{y}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{l+m+mi}{2}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{K}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{y}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{y}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 38 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{R0\PYZus{}bounds}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{SJ}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hx}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{s}\PY{o}{,}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{∨}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{s}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Rlo}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{R0}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{R0}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Rlo}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{U}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 33 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+Here \lean{Lnat} extends $L$ by $L_{n+1}=0$, and \lean{quad_prefix} is (8.24) verbatim. For a
+nonzero integer vector $y$, the prefix sum ending at the first nonzero entry equals that entry,
+so the corresponding square is at least $1$ and its coefficient at least $2$
+(\lean{quad_ge_two}). \lean{R0_bounds} is the statement $\mathrm{osc}(R_0)\le U-1$: each term of
+$R_0$ is a coefficient times a $0/1$ indicator, and $U-1$ is exactly the sum of the absolute
+values of these coefficients (\lean{U_sub_one}).
+
+% ----------------------------------------------------------------- step 9
+\subsection{Step 9 --- Gates 1 and 2: the anchor is early, every block is coded ((8.25), Lemma I.15)}\label{step:gates}
+
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.15 (global load lock).** With the anchor early, any early set whose tardy block}
+\PY{l+s+sd}{loads differ from `β` costs strictly more than the coded benchmark set. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{load\PYZus{}lock}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hE}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{anchor}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E}\PY{o}{)}
+\PY{+w}{    }\PY{o}{(}\PY{n}{hb}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∃}\PY{+w}{ }\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bq}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{xE}\PY{+w}{ }\PY{n}{E}\PY{o}{)}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{u}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n+nb+bp}{\PYZus{}}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{true}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 25 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Anchor gate (8.25).** An early set with the anchor tardy costs more than `C⋆`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{anchor\PYZus{}gate}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{E}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hE}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{anchor}\PY{+w}{ }\PY{n+nb+bp}{∉}\PY{+w}{ }\PY{n}{E}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cstar}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 33 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} \lean{load_lock} compares an anchor-early set $E$ with a wrong
+load against the benchmark coded set (spin $\sigma\equiv+1$, load exactly $\beta$, lock
+penalty $0$). By \lean{phiQ_decomp}, the difference of the two objectives is at least
+$\frac H2\cdot2-(U-1)=H-U+1>0$. \lean{anchor_gate}: if the anchor is tardy, its own tardy term
+alone is $p_aw^L_a=H^2s_a=H^2\bigl(1+\lceil C^\star/H^2\rceil\bigr)>C^\star$, and all other
+terms of $\Phi$ are nonnegative. Combining \lean{load_lock} with Lemma~I.11 gives
+\lean{coded_of_balanced}: a minimizer has the form $E=\mathrm{codedE}(\sigma)$ for a spin vector
+$\sigma$.
+
+\begin{notebox}
+\notelabel{Difference from the paper}
+Lemma~I.15 is stated in the paper for optimal canonical assignments. The formal
+\lean{load_lock} is a pointwise strict comparison with one explicit coded set, which is
+slightly stronger and is exactly what the gate argument needs.
+\end{notebox}
+
+% ----------------------------------------------------------------- step 10
+\subsection{Step 10 --- Coded expansion and the master identity (Lemma I.16, (8.26)--(8.31))}\label{step:master}
+
+\begin{paperbox}
+\paperlabel{Lemma I.16}
+On coded states, $\Phi_\can(\sigma)=C_0+\sum_v(a^\star_v+e_v)\sigma_v+\sum_{u<v}J_{uv}\sigma_u\sigma_v$
+(8.26), and with $x_v=(1+\sigma_v)/2$,
+\begin{gather*}
+\Phi_\can(\sigma)=A+\Pen(x)+R(\sigma),\qquad
+\Pen(x)=\sum_{k=1}^n\frac{\Delta_k}{2}\bigl(C_k(x)-k\bigr)^2,\\
+R(\sigma)=\sum_ve_v\sigma_v+\sum_{u<v}\bigl(J_{uv}-J^{\rm main}_{uv}\bigr)\sigma_u\sigma_v,\qquad
+J^{\rm main}_{uv}=\frac14\sum_{k=1}^n\Delta_kd_{u,k}d_{v,k}.
+\end{gather*}
+\end{paperbox}
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Coded expansion (8.26).** On coded assignments the residual of the load lock is a}
+\PY{l+s+sd}{constant plus the target field plus the field error plus the cross}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{block couplings. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{R0\PYZus{}coded}\PY{+w}{ }\PY{o}{(}\PY{n+nb+bp}{\PYZus{}}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{R0}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{xE}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{n}{σ}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cexp}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{linC}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{quadC}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 129 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{coded\PYZus{}objective}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{n}{σ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{C0}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{linC}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{quadC}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 18 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ main}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{gap coupling (8.27) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Jmain}\PY{+w}{ }\PY{o}{(}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{1}\PY{n+nb+bp}{/}\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{Icc}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Δ}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{dpre}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{dpre}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n}{k}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ prefix penalty `𝒫(x)` (8.28) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Pen}\PY{+w}{ }\PY{o}{(}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{Icc}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Δ}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{/}\PY{+w}{ }\PY{l+m+mi}{2}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cpre}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{k}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{2}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ residual `R(σ)` (8.30) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{Res}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ev}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{sgnQ}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{n}{v}\PY{o}{)}
+\PY{+w}{  }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{∑}\PY{+w}{ }\PY{n}{v}\PY{o}{,}\PY{+w}{ }\PY{k}{if}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{k}{then}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Jc}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Jmain}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{sgnQ}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{n}{u}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{sgnQ}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{n}{v}\PY{o}{)}\PY{+w}{ }\PY{k}{else}\PY{+w}{ }\PY{l+m+mi}{0}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.16 (exact master decomposition).** }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{master}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{n}{σ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Aconst}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Pen}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Res}\PY{+w}{ }\PY{n}{σ}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 89 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} On a coded set the early indicator of state job $s$ is
+$x_s=(1+\sigma_{v(s)}\epsilon_s)/2$ (\lean{xE_coded}). Substituting this into $R_0$ and
+expanding gives a constant, a linear term and a quadratic term in $\sigma$ (\lean{R0_coded}).
+The coefficient of $\sigma_v$ is the baseline field $a^0_v$ of (8.14) (written in ordered-pair
+form by \lean{a0_eq}) minus the tardiness-offset contribution $\eta_vD_v/4$, which is
+$a^\star_v+e_v$ by the definition (8.18) of $e_v$. The coefficient of $\sigma_u\sigma_v$ is
+$J_{uv}$. Because the load-lock term vanishes on coded sets, this is (8.26)
+(\lean{coded_objective}); evaluating it at $\sigma\equiv+1$ identifies the constant with
+$C_0$. \lean{master} then completes the square prefix by prefix:
+$\frac{\Delta_k}8Y_k^2+\frac{\Delta_kk}4Y_k=\frac{\Delta_k}8(Y_k+k)^2-\frac{\Delta_k}8k^2$ with
+$Y_k=\sum_vd_{v,k}\sigma_v$, and $Y_k+k=2(C_k(x)-k)$ by (8.13), which uses
+$\sum_vd_{v,k}=3k$ (\lean{sum_dpre}).
+
+% ----------------------------------------------------------------- step 11
+\subsection{Step 11 --- Residual budget and decision gap ((8.19), (8.32)--(8.34))}\label{step:gap}
+
+\begin{paperbox}
+\paperlabel{(8.19), (8.32), (8.33)}
+$|e_v|\le D_v/8$; $|R(\sigma)|\le\Gamma=\frac98n^2W+\frac18\sum_vD_v$; and
+$\Delta_{\min}/2>2\Gamma+1$.
+\end{paperbox}
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ `|e\PYZus{}v| ≤ D\PYZus{}v }\PY{l+s+sd}{/}\PY{l+s+sd}{ 8` (8.19) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{abs\PYZus{}ev\PYZus{}le}\PY{+w}{ }\PY{o}{(}\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{ev}\PY{+w}{ }\PY{n}{v}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Dv}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{/}\PY{+w}{ }\PY{l+m+mi}{8}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 10 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Jc\PYZus{}sub\PYZus{}Jmain}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{huv}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{n}{v}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Jc}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Jmain}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Jc}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Jmain}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n}{v}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{l+m+mi}{9}\PY{n+nb+bp}{/}\PY{l+m+mi}{4}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{W}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 20 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Residual bound (8.32)**: `|R(σ)| ≤ Γ`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{abs\PYZus{}Res\PYZus{}le}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{σ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Res}\PY{+w}{ }\PY{n}{σ}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Gam}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 33 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ `4 Γ \PYZlt{} G M`, hence `Δ\PYZus{}min }\PY{l+s+sd}{/}\PY{l+s+sd}{ 2 \PYZgt{} 2 Γ` }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{four\PYZus{}Gam\PYZus{}lt}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{4}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Gam}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{G}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{M}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 21 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Δ\PYZus{}gt}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hk}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{Icc}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{G}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{M}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Δ}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 3 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Pen\PYZus{}ge}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{x}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{→}\PY{+w}{ }\PY{n}{Bool}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{\PYZob{}}\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℕ}\PY{o}{\PYZcb{}}\PY{+w}{ }\PY{o}{(}\PY{n}{hk}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{Icc}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hne}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cpre}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{≠}\PY{+w}{ }\PY{n}{k}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Δ}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{/}\PY{+w}{ }\PY{l+m+mi}{2}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Pen}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 15 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} \lean{abs_ev_le} uses only $|\round(x)-x|\le\frac12$ and
+$D_v>0$. \lean{abs_Res_le} adds the field errors and the band terms of Step~7 over at most
+$n^2/2$ block pairs (\lean{count_lt}). For the gap, \lean{four_Gam_lt} proves $4\Gamma<GM$ from
+the integer inequality $36n^2W+4\sum_vD_v<8GM$, using $W\le15N^{53}$ and
+$D_v=2M(\kappa_1+\kappa_2+\kappa_3)+22134$ (\lean{Dv_eq'}). With \lean{Δ_gt} this gives
+$\Delta_{\min}/2>2\Gamma$. Finally \lean{Pen_ge}: one violated prefix equation costs at least
+$\Delta_k/2$, because $C_k(x)-k$ is a nonzero integer.
+
+% ----------------------------------------------------------------- step 12
+\subsection{Step 12 --- Both directions (Lemmas I.17 and I.18)}\label{step:main}
+
+This is the complete formal proof of the reduction for $n\ge1$; each step of the paper's
+argument is visible as a few lines.
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Theorem I.2 (correctness of the reduction).** For every RXC3 instance with `n ≥ 1`}
+\PY{l+s+sd}{(hence `n ≥ 3`), the instance has an exact cover iff the constructed AWET instance has a}
+\PY{l+s+sd}{schedule of cost at most `B`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{reduction\PYZus{}correct}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{HasExactCover}\PY{+w}{ }\PY{n+nb+bp}{↔}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Yes}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n}{rw}\PY{+w}{ }\PY{o}{[}\PY{n}{Inst}\PY{n+nb+bp}{.}\PY{n}{yes\PYZus{}iff}\PY{o}{]}
+\PY{+w}{  }\PY{n}{constructor}
+\PY{+w}{  }\PY{n+nb+bp}{·}\PY{+w}{ }\PY{c+c1}{\PYZhy{}\PYZhy{} Lemma I.17}
+\PY{+w}{    }\PY{n}{rintro}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{x}\PY{o}{,}\PY{+w}{ }\PY{n}{hx}\PY{n+nb+bp}{⟩}
+\PY{+w}{    }\PY{n}{refine}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{n}{x}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{?}\PY{n+nb+bp}{\PYZus{}}\PY{n+nb+bp}{⟩}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hrpe}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{exactCover\PYZus{}iff\PYZus{}RPE}\PY{+w}{ }\PY{n}{x}\PY{o}{)}\PY{n+nb+bp}{.}\PY{n}{mp}\PY{+w}{ }\PY{n}{hx}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hpen}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Pen}\PY{+w}{ }\PY{n}{x}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{      }\PY{n}{unfold}\PY{+w}{ }\PY{n}{Pen}
+\PY{+w}{      }\PY{n}{refine}\PY{+w}{ }\PY{n}{Finset}\PY{n+nb+bp}{.}\PY{n}{sum\PYZus{}eq\PYZus{}zero}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n}{hk}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n+nb+bp}{?}\PY{n+nb+bp}{\PYZus{}}\PY{o}{)}
+\PY{+w}{      }\PY{k}{have}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{Finset}\PY{n+nb+bp}{.}\PY{n}{mem\PYZus{}Icc}\PY{n+nb+bp}{.}\PY{n}{mp}\PY{+w}{ }\PY{n}{hk}
+\PY{+w}{      }\PY{n}{rw}\PY{+w}{ }\PY{o}{[}\PY{n}{hrpe}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n}{this}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{+w}{ }\PY{n}{this}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{o}{]}\PY{n+nb+bp}{;}\PY{+w}{ }\PY{n}{push\PYZus{}cast}\PY{n+nb+bp}{;}\PY{+w}{ }\PY{n}{ring}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hm}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{master}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n}{x}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hr}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{abs\PYZus{}le}\PY{n+nb+bp}{.}\PY{n}{mp}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{abs\PYZus{}Res\PYZus{}le}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n}{x}\PY{o}{)}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hle}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{n}{x}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Aconst}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Gam}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{      }\PY{n}{rw}\PY{+w}{ }\PY{o}{[}\PY{n}{hm}\PY{o}{,}\PY{+w}{ }\PY{n}{hpen}\PY{o}{]}\PY{n+nb+bp}{;}\PY{+w}{ }\PY{n}{linarith}\PY{+w}{ }\PY{o}{[}\PY{n}{hr}\PY{n+nb+bp}{.}\PY{l+m}{2}\PY{o}{]}
+\PY{+w}{    }\PY{n}{unfold}\PY{+w}{ }\PY{n}{Bnd}
+\PY{+w}{    }\PY{n}{exact}\PY{+w}{ }\PY{n}{Int}\PY{n+nb+bp}{.}\PY{n}{le\PYZus{}floor}\PY{n+nb+bp}{.}\PY{n}{mpr}\PY{+w}{ }\PY{n}{hle}
+\PY{+w}{  }\PY{n+nb+bp}{·}\PY{+w}{ }\PY{c+c1}{\PYZhy{}\PYZhy{} Lemma I.18}
+\PY{+w}{    }\PY{n}{rintro}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{E}\PY{o}{,}\PY{+w}{ }\PY{n}{hE}\PY{n+nb+bp}{⟩}
+\PY{+w}{    }\PY{k}{obtain}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{E0}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{\PYZhy{}}\PY{o}{,}\PY{+w}{ }\PY{n}{hmin}\PY{n+nb+bp}{⟩}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{Finset}\PY{n+nb+bp}{.}\PY{n}{exists\PYZus{}min\PYZus{}image}\PY{+w}{ }\PY{o}{(}\PY{n}{univ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Finset}\PY{+w}{ }\PY{o}{(}\PY{n}{Finset}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{o}{)}\PY{o}{)}
+\PY{+w}{      }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{E}\PY{o}{,}\PY{+w}{ }\PY{n}{mem\PYZus{}univ}\PY{+w}{ }\PY{n}{E}\PY{n+nb+bp}{⟩}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hmin\PYZsq{}}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{F}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E0}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{F}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{fun}\PY{+w}{ }\PY{n}{F}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{hmin}\PY{+w}{ }\PY{n}{F}\PY{+w}{ }\PY{o}{(}\PY{n}{mem\PYZus{}univ}\PY{+w}{ }\PY{n}{F}\PY{o}{)}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hE0}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{n}{E0}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{le\PYZus{}trans}\PY{+w}{ }\PY{o}{(}\PY{n}{hmin\PYZsq{}}\PY{+w}{ }\PY{n}{E}\PY{o}{)}\PY{+w}{ }\PY{n}{hE}
+\PY{+w}{    }\PY{c+c1}{\PYZhy{}\PYZhy{} Gate 1: the anchor is early}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hanc}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Job}\PY{n+nb+bp}{.}\PY{n}{anchor}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{E0}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{      }\PY{n}{by\PYZus{}contra}\PY{+w}{ }\PY{n}{h}
+\PY{+w}{      }\PY{k}{have}\PY{+w}{ }\PY{n}{h1}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{anchor\PYZus{}gate}\PY{+w}{ }\PY{n}{h}
+\PY{+w}{      }\PY{k}{have}\PY{+w}{ }\PY{n}{h2}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cstar}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n+nb+bp}{\PYZus{}}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{true}\PY{o}{)}\PY{o}{)}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{        }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Φ\PYZus{}pre\PYZus{}eq\PYZus{}inst}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{mem\PYZus{}codedE\PYZus{}anchor}\PY{+w}{ }\PY{n+nb+bp}{\PYZus{}}\PY{o}{)}
+\PY{+w}{      }\PY{k}{have}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{hmin\PYZsq{}}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n+nb+bp}{\PYZus{}}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{true}\PY{o}{)}\PY{o}{)}
+\PY{+w}{      }\PY{n}{omega}
+\PY{+w}{    }\PY{c+c1}{\PYZhy{}\PYZhy{} Gate 2: every block is coded}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hbal}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{u}\PY{o}{,}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{bq}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{xE}\PY{+w}{ }\PY{n}{E0}\PY{o}{)}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{u}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{      }\PY{n}{by\PYZus{}contra}\PY{+w}{ }\PY{n}{h}
+\PY{+w}{      }\PY{n}{push}\PY{+w}{ }\PY{n}{Not}\PY{+w}{ }\PY{k}{at}\PY{+w}{ }\PY{n}{h}
+\PY{+w}{      }\PY{k}{have}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{load\PYZus{}lock}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n}{hanc}\PY{+w}{ }\PY{n}{h}
+\PY{+w}{      }\PY{k}{have}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{hmin\PYZsq{}}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{o}{(}\PY{k}{fun}\PY{+w}{ }\PY{n+nb+bp}{\PYZus{}}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{true}\PY{o}{)}\PY{o}{)}
+\PY{+w}{      }\PY{n}{omega}
+\PY{+w}{    }\PY{k}{obtain}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{σ}\PY{o}{,}\PY{+w}{ }\PY{n}{rfl}\PY{n+nb+bp}{⟩}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{coded\PYZus{}of\PYZus{}balanced}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n}{hanc}\PY{+w}{ }\PY{n}{hbal}
+\PY{+w}{    }\PY{c+c1}{\PYZhy{}\PYZhy{} Gate 3: every prefix equation is exact}
+\PY{+w}{    }\PY{n}{refine}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{σ}\PY{o}{,}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{exactCover\PYZus{}iff\PYZus{}RPE}\PY{+w}{ }\PY{n}{σ}\PY{o}{)}\PY{n+nb+bp}{.}\PY{n}{mpr}\PY{+w}{ }\PY{n+nb+bp}{?}\PY{n+nb+bp}{\PYZus{}}\PY{n+nb+bp}{⟩}
+\PY{+w}{    }\PY{n}{intro}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n}{hk1}\PY{+w}{ }\PY{n}{hkn}
+\PY{+w}{    }\PY{n}{by\PYZus{}contra}\PY{+w}{ }\PY{n}{hne}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hk}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{n+nb+bp}{∈}\PY{+w}{ }\PY{n}{Icc}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{Finset}\PY{n+nb+bp}{.}\PY{n}{mem\PYZus{}Icc}\PY{n+nb+bp}{.}\PY{n}{mpr}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n}{hk1}\PY{o}{,}\PY{+w}{ }\PY{n}{hkn}\PY{n+nb+bp}{⟩}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hm}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{master}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n}{σ}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hr}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{abs\PYZus{}le}\PY{n+nb+bp}{.}\PY{n}{mp}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{abs\PYZus{}Res\PYZus{}le}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n}{σ}\PY{o}{)}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hB}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Aconst}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Gam}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{Int}\PY{n+nb+bp}{.}\PY{n}{floor\PYZus{}le}\PY{+w}{ }\PY{n+nb+bp}{\PYZus{}}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hΦ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Φ}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{codedE}\PY{+w}{ }\PY{n}{σ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{exact\PYZus{}mod\PYZus{}cast}\PY{+w}{ }\PY{n}{hE0}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hP}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{Pen\PYZus{}ge}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n}{hk}\PY{+w}{ }\PY{n}{hne}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{hΔ}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{G}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℚ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{M}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Δ}\PY{+w}{ }\PY{n}{k}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{exact\PYZus{}mod\PYZus{}cast}\PY{+w}{ }\PY{n}{Δ\PYZus{}gt}\PY{+w}{ }\PY{n}{hn}\PY{+w}{ }\PY{n}{hk}
+\PY{+w}{    }\PY{k}{have}\PY{+w}{ }\PY{n}{h4}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{four\PYZus{}Gam\PYZus{}lt}\PY{+w}{ }\PY{n}{hn}
+\PY{+w}{    }\PY{n}{linarith}\PY{+w}{ }\PY{o}{[}\PY{n}{hr}\PY{n+nb+bp}{.}\PY{l+m}{1}\PY{o}{]}
+\end{Verbatim}
+\end{leanbox}
+\begin{itemize}[leftmargin=14pt]
+\item \textbf{If} (Lemma~I.17). Choose the coded set of an exact cover $x$. Its prefix penalty is
+  $0$, so the master identity and $|R|\le\Gamma$ give $\Phi\le A+\Gamma$. Since $\Phi$ is an
+  integer, $\Phi\le\lfloor A+\Gamma\rfloor=B$ (\lean{Int.le_floor}).
+\item \textbf{Only if} (Lemma~I.18). By \lean{yes_iff} some early set has $\Phi\le B$; take a
+  minimizer $E_0$ of $\Phi$ over all (finitely many) early sets. Gate~1: the anchor is early,
+  otherwise $\Phi(E_0)>C^\star=\Phi(\mathrm{codedE}(+1))$, contradicting minimality. Gate~2:
+  every load is $\beta$, otherwise \lean{load_lock} contradicts minimality; so
+  $E_0=\mathrm{codedE}(\sigma)$. Gate~3: if a prefix equation fails, then
+  $\Phi\ge A+\Delta_k/2-\Gamma>A+\Gamma\ge B$ by the master identity, \lean{Pen_ge},
+  \lean{four_Gam_lt} and \lean{Δ_gt}, contradicting $\Phi\le B$. So $\sigma$ solves RPE, and by
+  Reduction~I it is an exact cover.
+\end{itemize}
+The empty instance is handled separately; then the instance has only the anchor, and both
+sides are yes-instances:
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ the degenerate empty instance (`n = 0`) is a yes}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{instance on both sides }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{reduction\PYZus{}correct\PYZus{}zero}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{0}\PY{o}{)}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{HasExactCover}\PY{+w}{ }\PY{n+nb+bp}{↔}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Yes}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 14 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Correctness of the strong reduction RXC3 → AWET (Theorem I.2, Lemmas I.17–I.18).** }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{reduction\PYZus{}iff}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{HasExactCover}\PY{+w}{ }\PY{n+nb+bp}{↔}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Yes}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n}{rcases}\PY{+w}{ }\PY{n}{Nat}\PY{n+nb+bp}{.}\PY{n}{eq\PYZus{}zero\PYZus{}or\PYZus{}pos}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{k}{with}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n}{h}
+\PY{+w}{  }\PY{n+nb+bp}{·}\PY{+w}{ }\PY{n}{exact}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{reduction\PYZus{}correct\PYZus{}zero}\PY{+w}{ }\PY{n}{h}
+\PY{+w}{  }\PY{n+nb+bp}{·}\PY{+w}{ }\PY{n}{exact}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{reduction\PYZus{}correct}\PY{+w}{ }\PY{n}{h}
+\end{Verbatim}
+\end{leanbox}
+
+\begin{notebox}
+\notelabel{Difference from the paper}
+The paper's only-if proof starts from an optimal schedule and applies Lemma~I.3. The formal
+proof starts from a minimizer of $\Phi$ over all early sets, which exists because there are
+finitely many, and uses \lean{yes_iff}. Gate~3 needs only $\Delta_{\min}/2>2\Gamma$; the extra
+``$+1$'' in (8.33) is not used.
+\end{notebox}
+
+% ----------------------------------------------------------------- step 13
+\subsection{Step 13 --- Polynomial and unary bounds (Lemma I.19)}\label{step:size}
+
+\begin{paperbox}
+\paperlabel{Lemma I.19}
+Every integer of the constructed instance is bounded by $N^{650}$, $N=n+1$.
+\end{paperbox}
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{H\PYZus{}le}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{NN}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{254}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 8 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{Cstar\PYZus{}le}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Cstar}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{NN}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{387}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 30 lines of tactic proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{wL\PYZus{}anchor\PYZus{}le}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{H}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{sa}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{NN}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{642}\PY{+w}{ }\PY{o}{:=}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 1\PYZhy{}line term proof}
+
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{abs\PYZus{}Bnd\PYZus{}le}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{|}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{NN}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{391}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 27 lines of tactic proof}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ **Lemma I.19 (polynomial and unary bounds).** The constructed instance has `8n + 1` jobs and}
+\PY{l+s+sd}{every integer it contains — processing times, earliness and tardiness weights, the due date}
+\PY{l+s+sd}{and the decision bound — is at most `(n+1)\PYZca{}650` in absolute value. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{size\PYZus{}bound}\PY{+w}{ }\PY{o}{(}\PY{n}{X}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{RXC3}\PY{o}{)}\PY{+w}{ }\PY{o}{(}\PY{n}{hn}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{o}{:}
+\PY{+w}{    }\PY{n}{Fintype}\PY{n+nb+bp}{.}\PY{n}{card}\PY{+w}{ }\PY{o}{(}\PY{n}{Job}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{8}\PY{+w}{ }\PY{n+nb+bp}{*}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{    }\PY{o}{(}\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{p}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{    }\PY{o}{(}\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{wE}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{wE}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{    }\PY{o}{(}\PY{n+nb+bp}{∀}\PY{+w}{ }\PY{n}{j}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{0}\PY{+w}{ }\PY{n+nb+bp}{\PYZlt{}}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{∧}\PY{+w}{ }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{wL}\PY{+w}{ }\PY{n}{j}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{    }\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{d}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{+w}{ }\PY{n+nb+bp}{∧}
+\PY{+w}{    }\PY{n+nb+bp}{|}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{n+nb+bp}{|}\PY{+w}{ }\PY{n+nb+bp}{≤}\PY{+w}{ }\PY{o}{(}\PY{o}{(}\PY{n}{X}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{ℤ}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{+}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{)}\PY{+w}{ }\PY{n+nb+bp}{\PYZca{}}\PY{+w}{ }\PY{l+m+mi}{650}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n+nb+bp}{⋯}\PY{+w}{  }\PY{c+c1}{\PYZhy{}\PYZhy{} 22 lines of tactic proof}
+\end{Verbatim}
+\end{leanbox}
+\textbf{How the proof goes.} The bounds are propagated along the dependency chain of the
+construction, exactly as in the paper's Steps~1--5, with a handful of helper lemmas: products
+add exponents (\lean{mul_le_pw}), sums over the $8n\le N^3$ state jobs or the $n\le N$ blocks
+add $3$ or $1$ to the exponent (\lean{sum_SJ_le}, \lean{sum_blocks_le}), and constants
+$c\le4^k$ are absorbed as $N^k$ because $N\ge4$ (\lean{mul_pow_le}). Rational quantities
+($a^0$, $a^\star$, $e_v$, $J_{uv}$, $C_0$, $A$, $\Gamma$) are bounded in $\Q$ and transferred to
+the floor $B$. Table~\ref{tab:bounds} compares the exponents.
+
+\begin{table}[ht]
+\centering\footnotesize
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.15}
+\rowcolors{2}{white}{rowgray}
+\begin{tabular}{@{}l l c c@{\hspace{14pt}}l l c c@{}}
+\toprule
+\textbf{Quantity} & \textbf{Lean} & \textbf{Lean} & \textbf{Paper} & \textbf{Quantity} & \textbf{Lean} & \textbf{Lean} & \textbf{Paper}\\
+\midrule
+$p_i$ (state) & \lean{pS_le} & 51 & 51 & $U$ & \lean{U_le} & 253 & 253 \\
+$\beta_v$ & \lean{β_le} & 52 & 52 & $H=p_a$ & \lean{H_le} & 254 & 254 \\
+$\lambda_v$ & \lean{lam_le'} & 21 & 21 & $s_i$ & \lean{sS_le} & 277 & 276 \\
+$L_v,\ K_{uv}$ & \lean{K_le'} & 22 & 21 & $w^L_i$ (state) & \lean{wLS_le} & 328 & 327 \\
+$f_v$ & \lean{f_le} & 75 & 74 & $w^E_a$ & \lean{wEJ_anchor_le} & 331 & 330 \\
+$r_i$, $\rho$, $\Delta_k$ & \lean{rS_le} & 76 & 75 & $C^\star$ & \lean{Cstar_le} & 387 & 385 \\
+$w^E_i$ (state) & \lean{wES_le} & 127 & 126 & $s_a$ & \lean{sa_le} & 388 & 386 \\
+$\alpha_{ij}$ & \lean{α_le} & 178 & 177 & $w^L_a$ & \lean{wL_anchor_le} & 642 & 640 \\
+$|a^0_v|$ & \lean{abs_a0_le} & 182 & 181 & $d$ & \lean{d_le} & 258 & 255 \\
+$|a^\star_v|$ & \lean{abs_astar_le} & 79 & 78 & $|C_0|$ & \lean{abs_C0_le} & 388 & 385 \\
+$D_v$ (upper) & \lean{Dv_le'} & 44 & 43 & $|A|$ & \lean{abs_Aconst_le} & 389 & 386 \\
+$|\eta_v|$ & \lean{abs_eta_le} & 144 & 144 & $|B|$ & \lean{abs_Bnd_le} & 391 & 387 \\
+\bottomrule
+\end{tabular}
+\caption{Exponents $e$ of the bounds $\le N^e$ proved in Lean, next to the paper's exponents
+in the proof of Lemma~I.19 (strict bounds $<N^e$). The Lean bookkeeping absorbs constants
+more generously, so a few exponents are $1$--$4$ larger; all are far below $650$.}
+\label{tab:bounds}
+\end{table}
+
+As a point of reference, in the paper's worked example ($n=6$) and in random instances with
+$n\le9$, the largest integer of the constructed instance is about $N^{308}$ (the bound $B$),
+and the anchor's tardiness weight is about $N^{185}$; the exponent $650$ is very generous.
+
+% ----------------------------------------------------------------- step 14
+\subsection{Step 14 --- The worked examples of Appendix B}\label{step:examples}
+
+To confirm that the formal construction is the paper's construction, Section~16 of the file
+evaluates it on the two worked examples of Appendix~B with the kernel (\lean{decide}; no
+\lean{native_decide}):
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ The \PYZdq{}yes\PYZdq{} instance of Appendix B.1 (elements `e₁,…,e₆` are numbered `0,…,5`). }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{exYes}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{RXC3}\PY{+w}{ }\PY{k+kn}{where}
+\PY{+w}{  }\PY{n}{n}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{l+m+mi}{6}
+\PY{+w}{  }\PY{n}{S}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{0}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{2}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{0}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{1}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{3}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{5}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{0}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{2}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{5}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{3}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{5}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{2}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{3}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{]}\PY{o}{]}
+\PY{+w}{  }\PY{n}{mono}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{decide}
+\PY{+w}{  }\PY{n}{reg}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{decide}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ The \PYZdq{}no\PYZdq{} instance of Appendix B.2 (`e₃` and `e₄` exchanged between `S₁` and `S₃`). }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{exNo}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{RXC3}\PY{+w}{ }\PY{k+kn}{where}
+\PY{+w}{  }\PY{n}{n}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{l+m+mi}{6}
+\PY{+w}{  }\PY{n}{S}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{0}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{3}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{0}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{1}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{1}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{2}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{5}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{0}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{2}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{5}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{3}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{5}\PY{o}{]}\PY{o}{,}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{l+m+mi}{2}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{3}\PY{o}{,}\PY{+w}{ }\PY{l+m+mi}{4}\PY{o}{]}\PY{o}{]}
+\PY{+w}{  }\PY{n}{mono}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{decide}
+\PY{+w}{  }\PY{n}{reg}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{decide}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ block `v = 1` of the example (0}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{based index `0`) }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{def}\PY{+w}{ }\PY{n}{blk1}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{Fin}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{n}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{l+m+mi}{0}\PY{o}{,}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{decide}\PY{n+nb+bp}{⟩}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ Table 10, first row: `P₁₁` and `β₁`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{table10\PYZus{}P11}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{P}\PY{+w}{ }\PY{n}{blk1}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1798465080848246712074448255018260184595355}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{decide}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{table10\PYZus{}beta1}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{β}\PY{+w}{ }\PY{n}{blk1}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{7193860266091735000116541148400124485376124}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{decide}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ Table 13: the first main gap `Δ₁`, the narrowest gap `Δ₄` and the total band width `W`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{table13\PYZus{}gap1}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{Δ}\PY{+w}{ }\PY{l+m+mi}{1}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1016043624362133256191860470548001610280402871141813}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n}{decide}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{table13\PYZus{}gap4}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{Δ}\PY{+w}{ }\PY{l+m+mi}{4}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1016043505663439397306514004527616836374161673142606}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n}{decide}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{table13\PYZus{}W}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{W}\PY{+w}{ }\PY{n+nb+bp}{=}\PY{+w}{ }\PY{l+m+mi}{1122242198645248067609119549079725635487220872}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}\PY{+w}{ }\PY{n}{decide}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ B.1: `\PYZob{}S₁, S₅\PYZcb{}` is an exact cover ... }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{exYes\PYZus{}cover}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{IsExactCover}\PY{+w}{ }\PY{n+nb+bp}{!}\PY{o}{[}\PY{n}{true}\PY{o}{,}\PY{+w}{ }\PY{n}{false}\PY{o}{,}\PY{+w}{ }\PY{n}{false}\PY{o}{,}\PY{+w}{ }\PY{n}{false}\PY{o}{,}\PY{+w}{ }\PY{n}{true}\PY{o}{,}\PY{+w}{ }\PY{n}{false}\PY{o}{]}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n}{unfold}\PY{+w}{ }\PY{n}{RXC3}\PY{n+nb+bp}{.}\PY{n}{IsExactCover}\PY{n+nb+bp}{;}\PY{+w}{ }\PY{n}{decide}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ ... hence the constructed 49}\PY{l+s+sd}{\PYZhy{}}\PY{l+s+sd}{job AWET instance has a schedule of cost at most `B`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{exYes\PYZus{}yes}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Yes}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{n}{exYes}\PY{n+nb+bp}{.}\PY{n}{reduction\PYZus{}iff}\PY{n+nb+bp}{.}\PY{n}{mp}\PY{+w}{ }\PY{n+nb+bp}{⟨}\PY{n+nb+bp}{\PYZus{}}\PY{o}{,}\PY{+w}{ }\PY{n}{exYes\PYZus{}cover}\PY{n+nb+bp}{⟩}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ B.2: the modified instance has no exact cover (all 64 selections fail) ... }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{exNo\PYZus{}noCover}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{¬}\PY{+w}{ }\PY{n}{exNo}\PY{n+nb+bp}{.}\PY{n}{HasExactCover}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{by}
+\PY{+w}{  }\PY{n}{unfold}\PY{+w}{ }\PY{n}{RXC3}\PY{n+nb+bp}{.}\PY{n}{HasExactCover}\PY{+w}{ }\PY{n}{RXC3}\PY{n+nb+bp}{.}\PY{n}{IsExactCover}\PY{n+nb+bp}{;}\PY{+w}{ }\PY{n}{decide}
+
+\PY{l+s+sd}{/\PYZhy{}\PYZhy{}}\PY{l+s+sd}{ ... hence its constructed AWET instance has **no** schedule (with arbitrary real start}
+\PY{l+s+sd}{times) of cost at most `B`. }\PY{l+s+sd}{\PYZhy{}/}
+\PY{k+kn}{theorem}\PY{+w}{ }\PY{n}{exNo\PYZus{}no}\PY{+w}{ }\PY{o}{:}\PY{+w}{ }\PY{n+nb+bp}{¬}\PY{+w}{ }\PY{n}{exNo}\PY{n+nb+bp}{.}\PY{n}{inst}\PY{n+nb+bp}{.}\PY{n}{Yes}\PY{+w}{ }\PY{n}{exNo}\PY{n+nb+bp}{.}\PY{n}{Bnd}\PY{+w}{ }\PY{o}{:=}\PY{+w}{ }\PY{k}{fun}\PY{+w}{ }\PY{n}{h}\PY{+w}{ }\PY{n+nb+bp}{=\PYZgt{}}\PY{+w}{ }\PY{n}{exNo\PYZus{}noCover}\PY{+w}{ }\PY{o}{(}\PY{n}{exNo}\PY{n+nb+bp}{.}\PY{n}{reduction\PYZus{}iff}\PY{n+nb+bp}{.}\PY{n}{mpr}\PY{+w}{ }\PY{n}{h}\PY{o}{)}
+\end{Verbatim}
+\end{leanbox}
+The five numerical theorems reproduce, digit for digit, the paper's Table~10 (first row) and
+Table~13 (the first main gap, the narrowest main gap $\Delta_{\min}=\Delta_4$, and the total band
+width $W$). The last two theorems use the main theorem in both directions: the 49-job instance
+built from the yes-example has a schedule of cost at most $B$, and the instance built from
+the no-example has \emph{no} schedule of cost at most $B$, among all schedules with arbitrary real
+start times. This is a statement that no finite computation over schedules could establish.
+
+% ================================================================= 5
+\section{Remarks on the paper}\label{sec:remarks}
+
+\textbf{No error was found.} All statements on the path to Theorem~I.2 hold as stated:
+Lemma~I.3 and Proposition~I.4 (in the form $\mathrm{OPT}=\min_E\Phi(E)$), Lemmas~I.7--I.9 and
+I.11--I.19, and the equations used in between. The construction of Section~8.1 is
+well defined and works exactly as described. The remarks below are minor; none of them affects
+the result.
+
+\begin{enumerate}[leftmargin=20pt,itemsep=5pt]
+\item \textbf{Small instances.} Section~8 assumes $n\ge3$, ``since smaller instances can be
+  decided directly''. For RXC3 this assumption is automatic: a nonempty instance contains a
+  set of three distinct elements, so $n\ge3$ (\lean{n_ge_three}). The empty instance
+  is a yes-instance, and the construction still produces a valid one-job instance with $B=0$
+  that is a yes-instance, so no case distinction is needed in the reduction
+  (\lean{reduction_correct_zero}).
+\item \textbf{Proposition~I.4 for $E=\emptyset$.} The proposition is stated for nonempty $E$,
+  but the all-tardy assignment is also realized by a feasible schedule (start at $d$) of cost
+  $\Phi(\emptyset)$. Allowing $E=\emptyset$ is harmless and slightly simplifies the
+  argument.
+\item \textbf{Choices left open.} The paper allows any coded assignment as the benchmark for
+  $C^\star$ (8.25) and either nearest integer in (8.17). The formalization fixes $\sigma\equiv+1$
+  and $\round x=\lfloor x+\frac12\rfloor$; the proofs use only the properties the paper
+  states. The constant $C_0$ is described as ``the computable constant coefficient'' of (8.26);
+  the formalization computes it from the benchmark and proves that this is indeed the constant
+  coefficient (\lean{coded_objective}). The paper's bound on $C_0$ by averaging over all sign
+  vectors is replaced by a direct bound.
+\item \textbf{The ``$+1$'' in (8.33).} Gate~3 only needs $\Delta_{\min}/2>2\Gamma$: then
+  $\Phi\ge A+\Delta_{\min}/2-\Gamma>A+\Gamma\ge\lfloor A+\Gamma\rfloor=B$. The additional unit
+  ``to accommodate the integer floor'' is not needed (but does no harm).
+\item \textbf{Exponent bookkeeping in Lemma~I.19.} The formal bounds differ from the paper's
+  intermediate exponents by $1$--$4$ in places (Table~\ref{tab:bounds}) because constants are
+  absorbed more coarsely. We did not try to reproduce the paper's sharper intermediate
+  exponents, which look plausible; the paper's final claim, that every integer is at most
+  $N^{650}$, is confirmed.
+\item \textbf{Repeated sets.} Definition~I.5 speaks of a family of sets; the formal reduction is
+  correct even if some sets coincide, so it covers a slightly larger class of inputs.
+\item \textbf{Proof routes.} Three arguments are replaced by more elementary equivalents in the
+  formalization: the schedule surgery in Lemma~I.3 (Step~2), the profile integral in (8.10)
+  (Step~7), and the optimality formulation of Lemma~I.15 (Step~9). The paper's arguments for
+  these steps are correct as informal proofs; the replacements were chosen because they are
+  shorter to formalize.
+\end{enumerate}
+
+\textbf{What remains outside the formal proof.} (i) The NP-completeness of RXC3
+(Gonzalez, 1985), cited by the paper. (ii) The polynomial running time of the
+transformation (Lemma~I.19, Step~6): the Lean definitions are explicit formulas over $O(n^2)$
+terms whose numbers have $O(\log n)$ bits, and \lean{size_bound} bounds every output number by
+$(n+1)^{650}$, so the unary size is polynomial as well; but running time itself is not a formal
+statement in the file. (iii) The standard meta-argument (Garey and Johnson) that (a)--(c) of
+Section~\ref{sec:what} imply strong NP-hardness. All three are textbook facts that the paper also
+takes as given.
+
+% ================================================================= 6
+\section{Reproducing the check}\label{sec:repro}
+
+\begin{itemize}[leftmargin=14pt,itemsep=4pt]
+\item \textbf{Toolchain.} Lean 4 v4.35.0 (commit \lean{eb6cafb7}) and Mathlib at tag
+  \lean{v4.35.0} (commit \lean{56a00585}). Any Lake project that depends on this Mathlib
+  version will do; the file needs nothing else.
+\item \textbf{Command.} \lean{lake env lean AWET_PartI.lean}. On the machine used for this report
+  the file compiles in about one minute.
+\item \textbf{Expected output.} No errors and no warnings; exactly the three lines
+\begin{leanbox}
+\begin{Verbatim}[commandchars=\\\{\},fontsize=\leanfont]
+\PY{n+nb+bp}{\PYZsh{}}\PY{n}{print}\PY{+w}{ }\PY{n}{axioms}\PY{+w}{ }\PY{n}{AWET}\PY{n+nb+bp}{.}\PY{n}{AWET\PYZus{}strong\PYZus{}reduction}
+\PY{n+nb+bp}{\PYZsh{}}\PY{n}{print}\PY{+w}{ }\PY{n}{axioms}\PY{+w}{ }\PY{n}{AWET}\PY{n+nb+bp}{.}\PY{n}{Inst}\PY{n+nb+bp}{.}\PY{n}{yes\PYZus{}iff}
+\PY{n+nb+bp}{\PYZsh{}}\PY{n}{print}\PY{+w}{ }\PY{n}{axioms}\PY{+w}{ }\PY{n}{AWET}\PY{n+nb+bp}{.}\PY{n}{Examples}\PY{n+nb+bp}{.}\PY{n}{exNo\PYZus{}no}
+\end{Verbatim}
+\end{leanbox}
+  each followed by \lean{depends on axioms: [propext, Classical.choice, Quot.sound]}.
+\item \textbf{Optional kernel replay.} Compile to an \lean{.olean}
+  (\lean{lean -o AWET_PartI.olean AWET_PartI.lean}) and run \lean{leanchecker AWET_PartI}
+  with the same \lean{LEAN_PATH}; it exits with code $0$ (about $10$ seconds).
+\item \textbf{File fingerprint.} SHA-256 of the verified file: \\
+  {\footnotesize\lean{87c9119b2c3b35a716ddab3de0e537cfd5e0f9a6791364f1f15243a6664a0419}}.
+\end{itemize}
+
+\textbf{Numerical cross-check before formalization.} Independently of Lean, the construction
+was first re-implemented in Python with exact rational arithmetic and run on the paper's
+yes-example and on random RXC3 instances with $n\in\{3,6,9\}$. For every instance it checked
+Lemma~I.11 by enumerating all $2^8$ sign vectors of every block, the claims of Lemmas~I.12 and
+I.14, the bounds on $J_{uv}-J^{\rm main}_{uv}$, $e_v$ and $\Gamma$, inequality (8.33), the anchor
+gate, and the master identity (8.31) together with $|R(\sigma)|\le\Gamma$ and the correct
+yes/no outcome for \emph{every} coded state $\sigma\in\{\pm1\}^n$. All checks passed.
+
+% ================================================================= appendix
+\appendix
+\section{Map from the paper to the Lean file}\label{app:map}
+
+{\small
+\renewcommand{\arraystretch}{1.13}
+\rowcolors{2}{white}{rowgray}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.47\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}@{}}
+\toprule
+\textbf{Paper} & \textbf{Lean} & \textbf{Status}\\
+\midrule
+\endhead
+Definition I.1 (AWET) & \lean{Inst}, \lean{Inst.d}, \lean{Inst.Sched}, \lean{Inst.cost}, \lean{Inst.Yes} & formalized \\
+Theorem I.2 & \lean{AWET_strong_reduction} & \ok\ (formal core) \\
+Lemma I.3, (6.1) & \lean{Sched.pack}, \lean{Φ_le_ordCost}, \lean{exists_Φ_le_cost} & \ok\ (other proof) \\
+Proposition I.4, (SO) & \lean{Inst.Φ}, \lean{canC}, \lean{exists_sched_cost_eq}, \lean{yes_iff} & \ok \\
+Definitions I.5, I.6 & \lean{RXC3}, \lean{IsExactCover}, \lean{dpre}, \lean{Cpre}, \lean{RPE} & formalized \\
+Lemma I.7 & \lean{Cpre_succ} & \ok \\
+Lemmas I.8, I.9 & \lean{exactCover_iff_RPE} & \ok \\
+Corollary I.10 & --- & not needed \\
+Section 8.1 (Tables 1--2, (8.1)--(8.2), (8.5), (8.14)--(8.22), (8.25), (8.29), (8.32), (8.34)) & definitions in Section 3 of the file; \lean{RXC3.inst}, \lean{RXC3.Bnd} & formalized \\
+Lemma I.11, (8.4) & \lean{digit_decode}, \lean{pair_decode}, \lean{two_states}, \lean{bq_coded} & \ok \\
+Lemma I.12 & \lean{β_bounds}, \lean{f_sub_bounds}, \lean{f_strict} & \ok\ (bounds used) \\
+Lemma I.13 & \lean{pair_compress}, \lean{J4_compress} & \ok \\
+Lemma I.14, (8.8) & \lean{scale_key}, \lean{phys_sep}, \lean{eff_sep}, \lean{eff_gap}, \lean{eff_width}, \lean{gap_gt}, \lean{W_le} & \ok \\
+(8.9)--(8.12) & \lean{layer_decomp}, \lean{gp_atom}, \lean{Mab_eq_dpre}, \lean{gapSum_eq}, \lean{bandSum_bounds}, \lean{J4_decomp} & \ok\ (discrete form) \\
+(8.13) & \lean{sum_dpre}, inside \lean{master} & \ok \\
+Lemma I.15, (8.23), (8.24) & \lean{Φ_anchor_early}, \lean{phiQ_decomp}, \lean{quad_prefix}, \lean{quad_ge_two}, \lean{R0_bounds}, \lean{load_lock} & \ok\ (stronger form) \\
+Anchor tardiness (8.25) & \lean{anchor_gate}, \lean{Φ_pre_eq_inst} & \ok \\
+(8.26) & \lean{a0_eq}, \lean{R0_coded}, \lean{coded_objective} & \ok \\
+Lemma I.16, (8.27)--(8.31) & \lean{Jmain}, \lean{Pen}, \lean{Res}, \lean{master} & \ok \\
+(8.19), (8.32) & \lean{abs_ev_le}, \lean{Jc_sub_Jmain}, \lean{abs_Res_le} & \ok \\
+(8.33) & \lean{four_Gam_lt}, \lean{Δ_gt} & \ok\ (without ``$+1$'') \\
+Lemma I.17 & \lean{reduction_correct} ($\Rightarrow$) & \ok \\
+Lemma I.18 & \lean{reduction_correct} ($\Leftarrow$), \lean{coded_of_balanced}, \lean{Pen_ge} & \ok \\
+Lemma I.19 & \lean{size_bound} and the bounds of Table~\ref{tab:bounds} & \ok\ (numbers) \\
+Appendix B.1, B.2 & \lean{AWET.Examples} & \ok\ (selected values) \\
+\bottomrule
+\end{longtable}}
+
+\section{Layout of the Lean file}\label{app:filemap}
+
+{\small
+\renewcommand{\arraystretch}{1.08}
+\rowcolors{2}{white}{rowgray}
+\begin{longtable}{@{}l r r >{\raggedright\arraybackslash}p{0.665\textwidth}@{}}
+\toprule
+\textbf{Lines} & \textbf{Thms} & \textbf{Defs} & \textbf{Section of the file} \\
+\midrule
+\endhead
+1--58 & -- & -- & Header comment: claim, what is proved, how to check, map of the file \\
+59--78 & -- & -- & Imports (Mathlib only) \\
+79--87 & -- & -- & Options and namespace set-up \\
+88--132 & 3 & 0 & Generic pair-sum lemmas \\
+133--775 & 30 & 18 & 1. The AWET problem (with the canonical schedule, Prop.~I.4, and the lower bound, Lemma~I.3) \\
+776--804 & 0 & 6 & 2. Restricted Exact Cover by 3-Sets (RXC3) and Regular Prefix Exactness (RPE) \\
+805--1179 & 40 & 55 & 3. The construction of Section 8 (with positivity of all constructed data) \\
+1180--1515 & 34 & 1 & 4. Basic arithmetic of the construction (Lemma~I.11) \\
+1516--1975 & 35 & 3 & 5. Kernel field (Lemma I.12) and scale separation (Lemma I.14) \\
+1976--2523 & 41 & 9 & 6. Effective bands, main gaps and the profile decomposition of $J_{uv}$ \\
+2524--2604 & 6 & 2 & 7. The canonical objective on anchor-early sets \\
+2605--2880 & 17 & 8 & 8. Quadratic bookkeeping over state jobs (in $\mathbb{Q}$) \\
+2881--3243 & 20 & 4 & 9. The global load lock (Lemma I.15) and the anchor gate \\
+3244--3543 & 9 & 5 & 10. Expansion on the coded state space and the master identity (Lemma I.16) \\
+3544--3649 & 7 & 0 & 11. Reduction I: RXC3 $\Leftrightarrow$ RPE (Lemmas I.7--I.9) \\
+3650--4059 & 19 & 3 & 12. Master identity (Lemma I.16), residual bound and decision gap \\
+4060--4183 & 4 & 0 & 13. Main theorem \\
+4184--4918 & 61 & 0 & 14. Polynomial size bounds (Lemma I.19) \\
+4919--4946 & 1 & 0 & 15. Summary: Part I of Hall--Kellerer--Song, machine-checked \\
+4947--5002 & 9 & 3 & 16. Sanity check against the paper's worked examples (Appendix B) \\
+\midrule
+total: 5002 lines & 336 & 117 & \\
+\bottomrule
+\end{longtable}}
+
+\end{document}
